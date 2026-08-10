@@ -66,9 +66,15 @@ public class RecruiterController {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
 
+        String previousStatus = application.getStatus();
+
         application.setStatus(status);
         application.setFeedback(feedback);
         applicationRepository.save(application);
+
+        // Keep slotsAvailable in sync with approvals so students see an
+        // accurate remaining count.
+        adjustSlotsForStatusChange(application.getInternship(), previousStatus, status);
 
         try {
             emailService.sendStatusUpdateEmail(
@@ -83,5 +89,25 @@ public class RecruiterController {
         }
 
         return "redirect:/recruiter/dashboard";
+    }
+
+    private void adjustSlotsForStatusChange(Internship internship, String previousStatus, String newStatus) {
+        if (internship.getSlotsAvailable() == null) {
+            return;
+        }
+
+        boolean wasApproved = "APPROVED".equalsIgnoreCase(previousStatus);
+        boolean isApproved = "APPROVED".equalsIgnoreCase(newStatus);
+
+        if (!wasApproved && isApproved) {
+            // Newly approved: take a slot, but never go below zero.
+            int remaining = Math.max(internship.getSlotsAvailable() - 1, 0);
+            internship.setSlotsAvailable(remaining);
+        } else if (wasApproved && !isApproved) {
+            // Un-approved (e.g. recruiter corrected a mistake): give the slot back.
+            internship.setSlotsAvailable(internship.getSlotsAvailable() + 1);
+        }
+
+        internshipRepository.save(internship);
     }
 }

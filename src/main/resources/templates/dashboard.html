@@ -357,14 +357,25 @@
         <h4 th:text="${program.title}">Title</h4>
         <p><strong>Company:</strong> <span th:text="${program.company}">Company</span></p>
         <p><strong>Requirements:</strong> <span th:text="${program.skillsRequired}">Skills</span></p>
+        <p>
+          <strong>Slots Remaining:</strong>
+          <span th:if="${program.slotsAvailable != null and program.slotsAvailable > 0}"
+                th:text="${program.slotsAvailable}">5</span>
+          <span th:if="${program.slotsAvailable == null}">Unlimited</span>
+          <span th:if="${program.slotsAvailable != null and program.slotsAvailable <= 0}"
+                style="color:#dc2626; font-weight:600;">Full</span>
+        </p>
 
         <!-- CV Upload Form -->
-        <form th:action="@{/student/submit-application}" method="post" enctype="multipart/form-data" class="apply-form">
+        <form th:action="@{/student/submit-application}" method="post" enctype="multipart/form-data" class="apply-form"
+              th:if="${program.slotsAvailable == null or program.slotsAvailable > 0}">
           <input type="hidden" name="internshipId" th:value="${program.id}" />
           <label>Upload Resume (PDF/Word):</label>
           <input type="file" name="file" required />
           <button type="submit" class="apply-btn">Apply Now</button>
         </form>
+        <p th:if="${program.slotsAvailable != null and program.slotsAvailable <= 0}"
+           style="color:#9ca3af; font-style:italic;">This program is currently full.</p>
       </div>
 
       <div th:if="${#lists.isEmpty(internships)}" style="grid-column: 1 / -1; text-align: center; color: #777; padding: 20px;">
