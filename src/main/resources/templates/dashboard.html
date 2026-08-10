@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+  <title>Student Dashboard - Smart Internship</title>
+  <link rel="icon" type="image/png" th:href="@{/images/logo.jpg}">
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+      background:#eef2f7;
+      display:flex;
+      min-height:100vh;
+      color:#2d3748;
+    }
+
+    /* Sidebar */
+
+    .sidebar{
+      width:260px;
+      background:linear-gradient(180deg,#1e3c72,#2a5298);
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      box-shadow:4px 0 18px rgba(0,0,0,.15);
+    }
+
+    .sidebar h2{
+      padding:28px 20px;
+      text-align:center;
+      font-size:22px;
+      font-weight:700;
+      letter-spacing:.5px;
+      border-bottom:1px solid rgba(255,255,255,.15);
+    }
+
+    .sidebar nav{
+      padding:20px 0;
+    }
+
+    .sidebar button{
+      width:100%;
+      background:none;
+      border:none;
+      color:#dbeafe;
+      padding:16px 24px;
+      text-align:left;
+      cursor:pointer;
+      font-size:15px;
+      font-weight:500;
+      transition:.3s;
+      border-left:4px solid transparent;
+    }
+
+    .sidebar button:hover{
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      border-left:4px solid #fff;
+    }
+
+    .sidebar .active{
+      background:rgba(255,255,255,.18);
+      color:#fff;
+      border-left:4px solid #ffd166;
+    }
+
+    .logout-form{
+      margin-top:auto;
+      padding:20px;
+    }
+
+    .logout-btn{
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:10px;
+      background:#e63946;
+      color:#fff;
+      font-weight:bold;
+      cursor:pointer;
+      transition:.3s;
+    }
+
+    .logout-btn:hover{
+      background:#c1121f;
+    }
+
+    /* Main */
+
+    .main-content{
+      flex:1;
+      padding:35px;
+      overflow-y:auto;
+    }
+
+    .tab-section{
+      display:none;
+      animation:fade .35s ease;
+    }
+
+    .tab-section.active{
+      display:block;
+    }
+
+    @keyframes fade{
+      from{
+        opacity:0;
+        transform:translateY(8px);
+      }
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    h3{
+      font-size:28px;
+      color:#1e3a5f;
+      margin-bottom:25px;
+      padding-bottom:12px;
+      border-bottom:3px solid #4f8ef7;
+    }
+
+    /* Search */
+
+    .search-box{
+      display:flex;
+      gap:15px;
+      margin-bottom:30px;
+    }
+
+    .search-box input{
+      flex:1;
+      padding:14px 18px;
+      border:1px solid #d5dce6;
+      border-radius:10px;
+      font-size:15px;
+      outline:none;
+      transition:.3s;
+    }
+
+    .search-box input:focus{
+      border-color:#4f8ef7;
+      box-shadow:0 0 0 4px rgba(79,142,247,.15);
+    }
+
+    .search-box button{
+      padding:14px 28px;
+      border:none;
+      border-radius:10px;
+      background:#2563eb;
+      color:#fff;
+      font-weight:600;
+      cursor:pointer;
+      transition:.3s;
+    }
+
+    .search-box button:hover{
+      background:#1d4ed8;
+    }
+
+    /* Cards */
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+      gap:25px;
+    }
+
+    .card{
+      background:#fff;
+      border-radius:18px;
+      padding:22px;
+      box-shadow:0 12px 30px rgba(0,0,0,.08);
+      transition:.3s;
+      border:1px solid #edf2f7;
+    }
+
+    .card:hover{
+      transform:translateY(-6px);
+      box-shadow:0 18px 35px rgba(0,0,0,.12);
+    }
+
+    .card h4{
+      color:#2563eb;
+      font-size:22px;
+      margin-bottom:15px;
+    }
+
+    .card p{
+      margin:8px 0;
+      color:#555;
+      line-height:1.6;
+    }
+
+    /* Apply Form */
+
+    .apply-form{
+      margin-top:18px;
+      background:#f8fafc;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      padding:18px;
+    }
+
+    .apply-form label{
+      display:block;
+      margin-bottom:8px;
+      font-weight:600;
+      color:#374151;
+    }
+
+    .apply-form input[type=file]{
+      width:100%;
+      margin-bottom:15px;
+    }
+
+    .apply-btn{
+      width:100%;
+      padding:13px;
+      border:none;
+      border-radius:10px;
+      background:linear-gradient(135deg,#10b981,#059669);
+      color:#fff;
+      font-size:15px;
+      font-weight:600;
+      cursor:pointer;
+      transition:.3s;
+    }
+
+    .apply-btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 20px rgba(16,185,129,.3);
+    }
+
+    /* Table */
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+      border-radius:15px;
+      overflow:hidden;
+      box-shadow:0 12px 30px rgba(0,0,0,.08);
+    }
+
+    th{
+      background:#2563eb;
+      color:#fff;
+      padding:16px;
+      text-align:left;
+      font-size:15px;
+    }
+
+    td{
+      padding:15px;
+      border-bottom:1px solid #edf2f7;
+    }
+
+    tbody tr:hover{
+      background:#f8fbff;
+    }
+
+    /* Status */
+
+    .status-badge{
+      display:inline-block;
+      padding:7px 14px;
+      border-radius:50px;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .status-PENDING{
+      background:#fff3cd;
+      color:#8a6d3b;
+    }
+
+    .status-APPROVED{
+      background:#d1fae5;
+      color:#065f46;
+    }
+
+    .status-REJECTED{
+      background:#fee2e2;
+      color:#991b1b;
+    }
+
+    /* Empty States */
+
+    .empty-state,
+    div[style*="No internship"],
+    div[style*="not submitted"]{
+      background:#fff;
+      padding:35px;
+      border-radius:15px;
+      text-align:center;
+      color:#6b7280;
+      box-shadow:0 10px 25px rgba(0,0,0,.05);
+    }
+
+    /* Responsive */
+
+    @media(max-width:900px){
+
+      body{
+        flex-direction:column;
+      }
+
+      .sidebar{
+        width:100%;
+      }
+
+      .grid{
+        grid-template-columns:1fr;
+      }
+
+      .search-box{
+        flex-direction:column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Left Navigation Sidebar -->
+<div class="sidebar">
+  <h2>Student Portal</h2>
+  <nav>
+    <button type="button" onclick="switchTab('find-internships')" id="tab-find-internships" class="active">Find Internships</button>
+    <button type="button" onclick="switchTab('my-applications')" id="tab-my-applications">My Applications</button>
+  </nav>
+  <form th:action="@{/logout}" method="post" class="logout-form">
+    <button type="submit" class="logout-btn">Logout</button>
+  </form>
+</div>
+
+<!-- Main Content Area -->
+<div class="main-content">
+
+  <!-- Tab 1: Find Internships & Apply with CV -->
+  <div id="find-internships" class="tab-section active">
+    <h3>Find Internship & Attachment Opportunities</h3>
+
+    <form th:action="@{/student/dashboard}" method="get" class="search-box">
+      <input type="text" name="keyword" th:value="${keyword}" placeholder="Filter by title or skills..." />
+      <button type="submit">Filter</button>
+    </form>
+
+    <div class="grid">
+      <div class="card" th:each="program : ${internships}">
+        <h4 th:text="${program.title}">Title</h4>
+        <p><strong>Company:</strong> <span th:text="${program.company}">Company</span></p>
+        <p><strong>Requirements:</strong> <span th:text="${program.skillsRequired}">Skills</span></p>
+
+        <!-- CV Upload Form -->
+        <form th:action="@{/student/submit-application}" method="post" enctype="multipart/form-data" class="apply-form">
+          <input type="hidden" name="internshipId" th:value="${program.id}" />
+          <label>Upload Resume (PDF/Word):</label>
+          <input type="file" name="file" required />
+          <button type="submit" class="apply-btn">Apply Now</button>
+        </form>
+      </div>
+
+      <div th:if="${#lists.isEmpty(internships)}" style="grid-column: 1 / -1; text-align: center; color: #777; padding: 20px;">
+        No internship opportunities found.
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Application Tracker with Recruiter Feedback -->
+  <div id="my-applications" class="tab-section">
+    <h3>My Application Status Tracker</h3>
+
+    <table th:if="${!#lists.isEmpty(myApplications)}">
+      <thead>
+      <tr>
+        <th>Company</th>
+        <th>Position Title</th>
+        <th>Application Status</th>
+        <th>Recruiter Feedback / Interview Details</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="app : ${myApplications}">
+        <td th:text="${app.internship.company}">Company</td>
+        <td th:text="${app.internship.title}">Position</td>
+        <td>
+          <span th:text="${app.status}" th:class="'status-badge status-' + ${app.status}">PENDING</span>
+        </td>
+        <td>
+          <span th:if="${app.feedback != null}" th:text="${app.feedback}" style="font-weight: 500;"></span>
+          <span th:if="${app.feedback == null}" style="color: #999; font-style: italic;">Awaiting recruiter review...</span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div th:if="${#lists.isEmpty(myApplications)}" style="text-align: center; color: #777; padding: 30px; background: white; border-radius: 6px;">
+      You have not submitted any applications yet.
+    </div>
+  </div>
+
+</div>
+
+<!-- Sidebar Tab Toggle Script -->
+<script>
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.sidebar button').forEach(el => el.classList.remove('active'));
+
+    document.getElementById(tabId).classList.add('active');
+    document.getElementById('tab-' + tabId).classList.add('active');
+  }
+
+  // Keep active tab on search reload
+  window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('keyword')) {
+      switchTab('find-internships');
+    }
+  };
+</script>
+</body>
+</html>

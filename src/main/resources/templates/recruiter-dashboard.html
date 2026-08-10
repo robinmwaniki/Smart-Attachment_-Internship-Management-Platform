@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="icon" type="image/png" th:href="@{/images/logo.jpg}">
+    <title>Recruiter Dashboard - Smart Internship Platform</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+
+        body{
+            font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+            background:#eef2f7;
+            color:#2d3748;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* NEW: Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background: #1e3a5f;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar h2 {
+            color: white;
+            font-size: 20px;
+            text-align: center;
+            padding: 25px 15px;
+            margin: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-top: 15px;
+        }
+        .sidebar nav button {
+            background: transparent;
+            color: #cbd5e1;
+            border: none;
+            border-radius: 0;
+            padding: 18px 25px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+        .sidebar nav button:hover, .sidebar nav button.active-tab {
+            background: #2563eb;
+            color: white;
+            transform: none;
+            box-shadow: inset 4px 0 0 #60a5fa;
+        }
+        .sidebar form {
+            margin-top: auto;
+        }
+        .sidebar .logout-btn {
+            background: #dc2626;
+            width: 100%;
+            border-radius: 0;
+            text-align: center;
+        }
+        .sidebar .logout-btn:hover {
+            background: #b91c1c;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* NEW: Main Content Wrapper */
+        .main-content {
+            flex: 1;
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+
+        /* EXISTING STYLES RETAINED BELOW */
+        .container{
+            max-width:1200px;
+            margin:auto;
+            background:#ffffff;
+            border-radius:20px;
+            padding:35px;
+            box-shadow:0 20px 45px rgba(0,0,0,.08);
+        }
+
+        .container h2{
+            color:#1e3a5f;
+            font-size:32px;
+            margin-bottom:35px;
+            padding-bottom:15px;
+            border-bottom:3px solid #2563eb;
+        }
+
+        .section{
+            background:#fafcff;
+            border:1px solid #e6edf5;
+            border-radius:18px;
+            padding:25px;
+            margin-bottom:35px;
+        }
+
+        h3{
+            color:#2563eb;
+            margin-bottom:25px;
+            font-size:24px;
+            border-left:5px solid #2563eb;
+            padding-left:12px;
+        }
+
+        /* Form */
+        .form-group{
+            margin-bottom:20px;
+        }
+        label{
+            display:block;
+            margin-bottom:8px;
+            font-weight:600;
+            color:#4b5563;
+        }
+        input, select, textarea{
+            width:100%;
+            padding:13px 15px;
+            border:1px solid #d5dce6;
+            border-radius:10px;
+            font-size:15px;
+            transition:.3s;
+            outline:none;
+        }
+        input:focus, select:focus, textarea:focus{
+            border-color:#2563eb;
+            box-shadow:0 0 0 4px rgba(37,99,235,.15);
+        }
+
+        /* Buttons (For content area only) */
+        .container button{
+            background:linear-gradient(135deg,#2563eb,#1d4ed8);
+            color:#fff;
+            border:none;
+            padding:13px 24px;
+            border-radius:10px;
+            cursor:pointer;
+            font-size:15px;
+            font-weight:600;
+            transition:.3s;
+        }
+        .container button:hover{
+            transform:translateY(-2px);
+            box-shadow:0 10px 20px rgba(37,99,235,.30);
+        }
+
+        /* Table */
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
+            background:#fff;
+            border-radius:15px;
+            overflow:hidden;
+            box-shadow:0 10px 25px rgba(0,0,0,.06);
+        }
+        th{
+            background:#2563eb;
+            color:white;
+            padding:16px;
+            text-align:left;
+            font-size:15px;
+        }
+        td{
+            padding:16px;
+            border-bottom:1px solid #edf2f7;
+            vertical-align:middle;
+        }
+        tbody tr{
+            transition:.2s;
+        }
+        tbody tr:hover{
+            background:#f8fbff;
+        }
+
+        /* Resume Link */
+        a{
+            color:#2563eb;
+            font-weight:600;
+            text-decoration:none;
+        }
+        a:hover{
+            text-decoration:underline;
+        }
+
+        /* Status Badges */
+        .badge-pending, .badge-approved, .badge-rejected{
+            display:inline-block;
+            padding:7px 14px;
+            border-radius:30px;
+            font-size:13px;
+            font-weight:700;
+        }
+        .badge-pending{
+            background:#fff3cd;
+            color:#8a6d3b;
+        }
+        .badge-approved{
+            background:#d1fae5;
+            color:#065f46;
+        }
+        .badge-rejected{
+            background:#fee2e2;
+            color:#991b1b;
+        }
+
+        /* Review Form */
+        td form{
+            display:flex;
+            gap:10px;
+            align-items:center;
+        }
+        td form select{
+            width:140px;
+        }
+        td form input{
+            flex:1;
+        }
+
+        /* Hide tabs by default */
+        .tab-section {
+            display: none;
+        }
+
+        /* Responsive */
+        @media(max-width:992px){
+            body { flex-direction: column; overflow: auto; height: auto; }
+            .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; }
+            .sidebar h2 { width: 100%; }
+            .sidebar nav { flex-direction: row; width: 100%; overflow-x: auto; }
+            .sidebar nav button { flex: 1; text-align: center; white-space: nowrap; }
+            .sidebar form { width: 100%; }
+
+            .main-content{ padding:20px; }
+            .container{ padding:25px; }
+
+            table, thead, tbody, th, td, tr{ display:block; }
+            thead{ display:none; }
+            tr{
+                margin-bottom:20px;
+                border:1px solid #e5e7eb;
+                border-radius:15px;
+                padding:15px;
+                background:white;
+            }
+            td{
+                border:none;
+                padding:10px 0;
+            }
+            td::before{
+                font-weight:bold;
+                display:block;
+                color:#374151;
+                margin-bottom:4px;
+            }
+            #review-applications td:nth-child(1)::before{content:"Student";}
+            #review-applications td:nth-child(2)::before{content:"Program";}
+            #review-applications td:nth-child(3)::before{content:"Resume";}
+            #review-applications td:nth-child(4)::before{content:"Status";}
+            #review-applications td:nth-child(5)::before{content:"Review";}
+
+            td form{ flex-direction:column; }
+            td form select, td form input, td form button{ width:100%; }
+        }
+    </style>
+</head>
+<body>
+
+
+<div class="sidebar">
+    <h2>Recruiter Portal</h2>
+    <nav>
+        <button type="button" onclick="switchTab('manage-programs')" id="nav-manage-programs" class="active-tab">Posted Programs</button>
+        <button type="button" onclick="switchTab('post-program')" id="nav-post-program">Post Internship</button>
+        <button type="button" onclick="switchTab('review-applications')" id="nav-review-applications">Review Applications</button>
+    </nav>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="logout-btn">Logout</button>
+    </form>
+</div>
+
+
+<div class="main-content">
+    <div class="container">
+        <h2 id="page-title">Posted Programs Overview</h2>
+
+        <div class="section tab-section" id="manage-programs" style="display: block;">
+            <h3>Your Posted Programs</h3>
+
+            <table th:if="${!#lists.isEmpty(programs)}">
+                <thead>
+                <tr>
+                    <th>Program Title</th>
+                    <th>Company</th>
+                    <th>Skills Required</th>
+                    <th>Slots Available</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="program : ${programs}">
+                    <td th:text="${program.title}">Title</td>
+                    <td th:text="${program.company}">Company</td>
+                    <td th:text="${program.skillsRequired}">Skills</td>
+                    <td>
+                        <span class="badge-approved" th:text="${program.slotsAvailable} + ' slots'">Slots</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div th:if="${#lists.isEmpty(programs)}" style="text-align: center; color: #6b7280; padding: 20px;">
+                You haven't posted any programs yet.
+            </div>
+        </div>
+
+
+        <div class="section tab-section" id="post-program">
+            <h3>Post a New Internship / Attachment Program</h3>
+            <form th:action="@{/recruiter/internships/post}" th:object="${newInternship}" method="post">
+                <div class="form-group">
+                    <label>Program Title:</label>
+                    <input type="text" th:field="*{title}" placeholder="e.g. Software Engineering Intern" required />
+                </div>
+                <div class="form-group">
+                    <label>Company Name:</label>
+                    <input type="text" th:field="*{company}" placeholder="e.g. Tech Corp" required />
+                </div>
+                <div class="form-group">
+                    <label>Skills Required (comma separated):</label>
+                    <input type="text" th:field="*{skillsRequired}" placeholder="Java, Spring Boot, PostgreSQL" required />
+                </div>
+
+                <!-- NEW FIELD: Number of slots -->
+                <div class="form-group">
+                    <label>Available Slots:</label>
+                    <input type="number" th:field="*{slotsAvailable}" placeholder="e.g. 5" min="1" required />
+                </div>
+
+                <button type="submit">Post Program</button>
+            </form>
+        </div>
+
+        <!-- TAB 3: Review Applications Section (Exactly as you provided) -->
+        <div class="section tab-section" id="review-applications">
+            <h3>Review Student Applications</h3>
+
+            <table th:if="${!#lists.isEmpty(applications)}">
+                <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Program</th>
+                    <th>Resume</th>
+                    <th>Status</th>
+                    <th>Action / Interview Message</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="app : ${applications}">
+                    <td th:text="${app.student.name} + ' (' + ${app.student.email} + ')'">Student</td>
+                    <td th:text="${app.internship.title}">Program</td>
+                    <td>
+                        <a th:if="${app.resumePath != null}"
+                           th:href="@{'/api/applications/download/' + ${app.id}}"
+                           target="_blank"
+                           rel="noopener noreferrer">View Resume</a>
+                        <span th:if="${app.resumePath == null}" style="color: #9ca3af; font-size: 14px;">No File</span>
+                    </td>
+                    <td>
+                        <span th:text="${app.status}"
+                              th:class="${app.status == 'APPROVED' ? 'badge-approved' : (app.status == 'REJECTED' ? 'badge-rejected' : 'badge-pending')}">PENDING</span>
+                    </td>
+                    <td>
+                        <form th:action="@{'/recruiter/applications/' + ${app.id} + '/review'}" method="post" style="display: flex; gap: 5px;">
+                            <select name="status" style="width: 100px;">
+                                <option value="APPROVED">APPROVE</option>
+                                <option value="REJECTED">REJECT</option>
+                            </select>
+                            <input type="text" name="feedback" placeholder="Interview details or reason..." required style="flex-grow: 1;" />
+                            <button type="submit">Send</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div th:if="${#lists.isEmpty(applications)}" style="text-align: center; color: #6b7280; padding: 20px;">
+                No student applications received yet.
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+    function switchTab(tabId) {
+
+        document.querySelectorAll('.tab-section').forEach(el => el.style.display = 'none');
+
+
+        document.querySelectorAll('.sidebar nav button').forEach(el => el.classList.remove('active-tab'));
+
+
+        document.getElementById(tabId).style.display = 'block';
+        document.getElementById('nav-' + tabId).classList.add('active-tab');
+
+
+        const titleMap = {
+            'manage-programs': 'Posted Programs Overview',
+            'post-program': 'Create New Internship',
+            'review-applications': 'Applicant Tracking System'
+        };
+        document.getElementById('page-title').innerText = titleMap[tabId];
+    }
+</script>
+
+</body>
+</html>
