@@ -375,11 +375,11 @@
                     <td th:text="${app.student.name} + ' (' + ${app.student.email} + ')'">Student</td>
                     <td th:text="${app.internship.title}">Program</td>
                     <td>
-                        <a th:if="${app.resumePath != null}"
+                        <a th:if="${app.hasResume()}"
                            th:href="@{'/api/applications/download/' + ${app.id}}"
-                           target="_blank"
+                           ...
                            rel="noopener noreferrer">View Resume</a>
-                        <span th:if="${app.resumePath == null}" style="color: #9ca3af; font-size: 14px;">No File</span>
+                        <span th:if="${!app.hasResume()}" style="color: #9ca3af; font-size: 14px;">No File</span>
                     </td>
                     <td>
                         <span th:text="${app.status}"

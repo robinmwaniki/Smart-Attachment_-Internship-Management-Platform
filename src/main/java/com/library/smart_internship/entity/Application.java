@@ -20,11 +20,21 @@ public class Application {
     @JoinColumn(name = "internship_id")
     private Internship internship;
 
-    private String status = "PENDING"; // PENDING, APPROVED, REJECTED
+    private String status = "PENDING";
 
-    // NEW: Stores the file path of the uploaded resume attachment
-    private String resumePath;
 
-    // Add this field inside Application.java
-    private String feedback; // Stores interview details or feedback message
+    @Lob
+    @Column(columnDefinition = "bytea")
+    private byte[] resumeData;
+
+    private String resumeFilename;
+
+    private String resumeContentType;
+
+
+    private String feedback;
+
+    public boolean hasResume() {
+        return resumeData != null && resumeData.length > 0;
+    }
 }

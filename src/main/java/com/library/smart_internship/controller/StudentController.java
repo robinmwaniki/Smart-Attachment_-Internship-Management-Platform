@@ -13,13 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -30,11 +25,6 @@ public class StudentController {
     private final InternshipRepository internshipRepository;
     private final StudentRepository studentRepository;
     private final ApplicationRepository applicationRepository;
-
-    // Directory where resumes get stored. On Render's free tier this disk is
-    // ephemeral (wiped on redeploy) - fine for now, but move to S3/Cloudinary
-    // before this matters in production.
-    private static final String UPLOAD_DIR = "uploads/resumes";
 
     @GetMapping("/dashboard")
     public String studentDashboard(@RequestParam(value = "keyword", required = false) String keyword,
@@ -54,9 +44,6 @@ public class StudentController {
             availableInternships = internshipRepository.findAll();
         }
 
-        // Only show programs that are active. Full programs are still shown
-        // (with 0 slots) so students can see they exist, but the template
-        // disables the Apply button for those.
         availableInternships = availableInternships.stream()
                 .filter(Internship::isActive)
                 .collect(Collectors.toList());
@@ -90,32 +77,13 @@ public class StudentController {
         application.setStatus("PENDING");
 
         if (file != null && !file.isEmpty()) {
-            application.setResumePath(saveResumeFile(file));
+            application.setResumeData(file.getBytes());
+            application.setResumeFilename(file.getOriginalFilename());
+            application.setResumeContentType(file.getContentType());
         }
 
         applicationRepository.save(application);
 
         return "redirect:/student/dashboard";
-    }
-
-    private String saveResumeFile(MultipartFile file) throws IOException {
-        Path uploadPath = Paths.get(UPLOAD_DIR);
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
-
-        String originalName = file.getOriginalFilename() != null ? file.getOriginalFilename() : "resume";
-        String extension = "";
-        int dotIndex = originalName.lastIndexOf('.');
-        if (dotIndex >= 0) {
-            extension = originalName.substring(dotIndex);
-        }
-
-        String storedFilename = UUID.randomUUID() + extension;
-        Path destination = uploadPath.resolve(storedFilename);
-
-        Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
-
-        return destination.toAbsolutePath().toString();
     }
 }
