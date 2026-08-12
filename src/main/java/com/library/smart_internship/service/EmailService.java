@@ -18,7 +18,7 @@ public class EmailService {
         message.setSubject("Application Status Update: " + programTitle);
 
         String emailBody = String.format(
-                "Hello %s,\n\n" +
+                "Hello %s,\n" +
                         "Your application for the '%s' program has been reviewed.\n\n" +
                         "Status: %s\n" +
                         "Recruiter Message / Interview Details:\n%s\n\n" +
