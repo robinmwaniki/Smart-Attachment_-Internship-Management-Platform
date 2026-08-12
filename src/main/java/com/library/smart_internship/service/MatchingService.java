@@ -22,14 +22,14 @@ public class MatchingService {
     private final InternshipRepository internshipRepository;
 
     public List<MatchResult> getRecommendationsForStudent(Long studentId) {
-        // 1. Fetch the student safely
+
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found with ID: " + studentId));
 
-        // 2. Fetch all active internships
+
         List<Internship> activeInternships = internshipRepository.findByIsActiveTrue();
 
-        // 3. Calculate matches, sort by highest percentage, and return
+
         return activeInternships.stream()
                 .map(internship -> calculateMatch(student, internship))
                 .sorted(Comparator.comparingInt(MatchResult::matchPercentage).reversed())
@@ -37,11 +37,11 @@ public class MatchingService {
     }
 
     private MatchResult calculateMatch(Student student, Internship internship) {
-        // Handle potential null values gracefully to avoid NullPointerExceptions
+
         String studentSkillsRaw = student.getSkills() != null ? student.getSkills() : "";
         String requiredSkillsRaw = internship.getSkillsRequired() != null ? internship.getSkillsRequired() : "";
 
-        // Convert strings to Sets of formatted words (e.g., "Java, Spring" -> ["java", "spring"])
+
         Set<String> studentSkills = extractSkills(studentSkillsRaw);
         Set<String> requiredSkills = extractSkills(requiredSkillsRaw);
 
@@ -49,12 +49,12 @@ public class MatchingService {
             return new MatchResult(internship, 100, 0); // If no skills required, it's a 100% match
         }
 
-        // Count how many required skills the student possesses
+
         long matchedCount = requiredSkills.stream()
                 .filter(studentSkills::contains)
                 .count();
 
-        // Calculate the percentage
+
         int percentage = (int) Math.round((double) matchedCount / requiredSkills.size() * 100);
 
         return new MatchResult(internship, percentage, (int) matchedCount);

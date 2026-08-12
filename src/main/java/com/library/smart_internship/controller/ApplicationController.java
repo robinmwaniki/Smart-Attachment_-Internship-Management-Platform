@@ -18,10 +18,7 @@ public class ApplicationController {
 
     private final ApplicationService applicationService;
 
-    /**
-     * POST: Apply for an internship with a file attachment (Resume PDF/Word)
-     * URL: http://localhost:8080/api/applications?studentId=1&internshipId=1
-     */
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Application> applyForInternship(
             @RequestParam Long studentId,
@@ -35,19 +32,14 @@ public class ApplicationController {
         }
     }
 
-    /**
-     * GET: View all applications submitted for a specific internship
-     */
+
     @GetMapping("/internship/{internshipId}")
     public ResponseEntity<List<Application>> getApplicationsByInternship(@PathVariable Long internshipId) {
         List<Application> applications = applicationService.getApplicationsForInternship(internshipId);
         return ResponseEntity.ok(applications);
     }
 
-    /**
-     * PUT: Recruiter updates application status (APPROVED / REJECTED)
-     * URL: http://localhost:8080/api/applications/1/status?status=APPROVED
-     */
+
     @PutMapping("/{id}/status")
     public ResponseEntity<Application> updateStatus(
             @PathVariable Long id,

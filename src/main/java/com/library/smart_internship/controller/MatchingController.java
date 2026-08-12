@@ -15,7 +15,7 @@ public class MatchingController {
 
     private final MatchingService matchingService;
 
-    // GET: http://localhost:8080/api/matches/student/1
+
     @GetMapping("/student/{studentId}")
     public ResponseEntity<List<MatchResult>> getRecommendations(@PathVariable Long studentId) {
         List<MatchResult> recommendations = matchingService.getRecommendationsForStudent(studentId);

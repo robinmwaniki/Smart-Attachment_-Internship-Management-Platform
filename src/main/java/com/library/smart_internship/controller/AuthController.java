@@ -37,24 +37,24 @@ public class AuthController {
     @PostMapping("/register")
     public String registerUser(@ModelAttribute Student student) {
 
-        // 1. Security Check: Verify if email already exists in the database
+
         boolean emailExists = studentRepository.findAll().stream()
                 .anyMatch(s -> s.getEmail().equalsIgnoreCase(student.getEmail()));
 
         if (emailExists) {
-            // Redirect back to the registration page with an error parameter
+
             return "redirect:/register?error";
         }
 
-        // 2. Hash the password securely
+
         student.setPassword(passwordEncoder.encode(student.getPassword()));
 
-        // 3. Ensure a fallback just in case the role was somehow left empty
+
         if (student.getRole() == null || student.getRole().isEmpty()) {
             student.setRole("STUDENT");
         }
 
-        // 4. Save the new user
+
         studentRepository.save(student);
         return "redirect:/login?success";
     }
@@ -67,10 +67,10 @@ public class AuthController {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        // 1. Get smart internship matches
+
         List<MatchResult> recommendations = matchingService.getRecommendationsForStudent(student.getId());
 
-        // 2. Get actual applications submitted by this specific student
+
         List<Application> myApplications = applicationRepository.findByStudentId(student.getId());
 
         model.addAttribute("student", student);

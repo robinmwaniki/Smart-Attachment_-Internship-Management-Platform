@@ -16,7 +16,7 @@ public class Internship {
     private String company;
     private String skillsRequired;
     private boolean isActive = true;
-    // Add this inside your Internship class
+
     @Column(name = "slots_available")
     private Integer slotsAvailable;
 

@@ -28,7 +28,7 @@ public class ApplicationService {
         Internship internship = internshipRepository.findById(internshipId)
                 .orElseThrow(() -> new RuntimeException("Internship not found with id: " + internshipId));
 
-        // Save application record to database
+
         Application application = new Application();
         application.setStudent(student);
         application.setInternship(internship);

@@ -19,7 +19,7 @@
       color:#2d3748;
     }
 
-    /* Sidebar */
+
 
     .sidebar{
       width:260px;
@@ -90,7 +90,7 @@
       background:#c1121f;
     }
 
-    /* Main */
+
 
     .main-content{
       flex:1;
@@ -126,7 +126,7 @@
       border-bottom:3px solid #4f8ef7;
     }
 
-    /* Search */
+
 
     .search-box{
       display:flex;
@@ -164,7 +164,7 @@
       background:#1d4ed8;
     }
 
-    /* Cards */
+
 
     .grid{
       display:grid;
@@ -238,7 +238,7 @@
       box-shadow:0 10px 20px rgba(16,185,129,.3);
     }
 
-    /* Table */
+
 
     table{
       width:100%;
@@ -266,7 +266,7 @@
       background:#f8fbff;
     }
 
-    /* Status */
+
 
     .status-badge{
       display:inline-block;
@@ -291,7 +291,7 @@
       color:#991b1b;
     }
 
-    /* Empty States */
+
 
     .empty-state,
     div[style*="No internship"],
@@ -304,7 +304,7 @@
       box-shadow:0 10px 25px rgba(0,0,0,.05);
     }
 
-    /* Responsive */
+
 
     @media(max-width:900px){
 
@@ -328,7 +328,7 @@
 </head>
 <body>
 
-<!-- Left Navigation Sidebar -->
+
 <div class="sidebar">
   <h2>Student Portal</h2>
   <nav>
@@ -340,10 +340,10 @@
   </form>
 </div>
 
-<!-- Main Content Area -->
+
 <div class="main-content">
 
-  <!-- Tab 1: Find Internships & Apply with CV -->
+
   <div id="find-internships" class="tab-section active">
     <h3>Find Internship & Attachment Opportunities</h3>
 
@@ -366,7 +366,7 @@
                 style="color:#dc2626; font-weight:600;">Full</span>
         </p>
 
-        <!-- CV Upload Form -->
+
         <form th:action="@{/student/submit-application}" method="post" enctype="multipart/form-data" class="apply-form"
               th:if="${program.slotsAvailable == null or program.slotsAvailable > 0}">
           <input type="hidden" name="internshipId" th:value="${program.id}" />
@@ -384,7 +384,7 @@
     </div>
   </div>
 
-  <!-- Tab 2: Application Tracker with Recruiter Feedback -->
+
   <div id="my-applications" class="tab-section">
     <h3>My Application Status Tracker</h3>
 
@@ -419,7 +419,7 @@
 
 </div>
 
-<!-- Sidebar Tab Toggle Script -->
+
 <script>
   function switchTab(tabId) {
     document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
@@ -429,7 +429,7 @@
     document.getElementById('tab-' + tabId).classList.add('active');
   }
 
-  // Keep active tab on search reload
+
   window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('keyword')) {

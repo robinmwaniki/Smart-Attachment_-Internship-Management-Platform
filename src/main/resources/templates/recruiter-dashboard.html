@@ -20,7 +20,7 @@
             overflow: hidden;
         }
 
-        /* NEW: Sidebar Styles */
+
         .sidebar {
             width: 260px;
             background: #1e3a5f;
@@ -78,14 +78,14 @@
             box-shadow: none;
         }
 
-        /* NEW: Main Content Wrapper */
+
         .main-content {
             flex: 1;
             padding: 40px 20px;
             overflow-y: auto;
         }
 
-        /* EXISTING STYLES RETAINED BELOW */
+
         .container{
             max-width:1200px;
             margin:auto;
@@ -119,7 +119,7 @@
             padding-left:12px;
         }
 
-        /* Form */
+
         .form-group{
             margin-bottom:20px;
         }
@@ -143,7 +143,7 @@
             box-shadow:0 0 0 4px rgba(37,99,235,.15);
         }
 
-        /* Buttons (For content area only) */
+
         .container button{
             background:linear-gradient(135deg,#2563eb,#1d4ed8);
             color:#fff;
@@ -199,7 +199,7 @@
             text-decoration:underline;
         }
 
-        /* Status Badges */
+
         .badge-pending, .badge-approved, .badge-rejected{
             display:inline-block;
             padding:7px 14px;
@@ -220,7 +220,7 @@
             color:#991b1b;
         }
 
-        /* Review Form */
+
         td form{
             display:flex;
             gap:10px;
@@ -233,12 +233,12 @@
             flex:1;
         }
 
-        /* Hide tabs by default */
+
         .tab-section {
             display: none;
         }
 
-        /* Responsive */
+
         @media(max-width:992px){
             body { flex-direction: column; overflow: auto; height: auto; }
             .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; }
@@ -346,7 +346,7 @@
                     <input type="text" th:field="*{skillsRequired}" placeholder="Java, Spring Boot, PostgreSQL" required />
                 </div>
 
-                <!-- NEW FIELD: Number of slots -->
+
                 <div class="form-group">
                     <label>Available Slots:</label>
                     <input type="number" th:field="*{slotsAvailable}" placeholder="e.g. 5" min="1" required />
@@ -356,7 +356,7 @@
             </form>
         </div>
 
-        <!-- TAB 3: Review Applications Section (Exactly as you provided) -->
+
         <div class="section tab-section" id="review-applications">
             <h3>Review Student Applications</h3>
 

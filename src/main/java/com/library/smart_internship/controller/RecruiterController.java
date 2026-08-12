@@ -72,8 +72,7 @@ public class RecruiterController {
         application.setFeedback(feedback);
         applicationRepository.save(application);
 
-        // Keep slotsAvailable in sync with approvals so students see an
-        // accurate remaining count.
+
         adjustSlotsForStatusChange(application.getInternship(), previousStatus, status);
 
         try {
@@ -104,7 +103,7 @@ public class RecruiterController {
             int remaining = Math.max(internship.getSlotsAvailable() - 1, 0);
             internship.setSlotsAvailable(remaining);
         } else if (wasApproved && !isApproved) {
-            // Un-approved (e.g. recruiter corrected a mistake): give the slot back.
+
             internship.setSlotsAvailable(internship.getSlotsAvailable() + 1);
         }
 
