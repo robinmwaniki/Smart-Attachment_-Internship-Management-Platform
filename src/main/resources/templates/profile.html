@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Profile - Smart Internship</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo.jpg}">
+    <style>
+        *{ margin:0; padding:0; box-sizing:border-box; }
+        body{
+            font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+            background:#eef2f7;
+            min-height:100vh;
+            display:flex;
+            align-items:flex-start;
+            justify-content:center;
+            padding:50px 20px;
+        }
+        .card{
+            background:#fff;
+            border-radius:18px;
+            box-shadow:0 12px 30px rgba(0,0,0,.08);
+            max-width:520px;
+            width:100%;
+            overflow:hidden;
+        }
+        .card-header{
+            background:linear-gradient(135deg,#1e3c72,#2a5298);
+            color:#fff;
+            padding:28px 30px;
+        }
+        .card-header h2{
+            font-size:24px;
+            margin-bottom:6px;
+        }
+        .card-header p{
+            font-size:14px;
+            opacity:.85;
+        }
+        .card-body{
+            padding:30px;
+        }
+        .alert{
+            padding:12px 16px;
+            border-radius:10px;
+            margin-bottom:20px;
+            font-size:14px;
+            font-weight:600;
+        }
+        .alert-success{
+            background:#d1fae5;
+            color:#065f46;
+        }
+        .field-group{
+            margin-bottom:18px;
+        }
+        label{
+            display:block;
+            font-size:13px;
+            font-weight:600;
+            color:#374151;
+            margin-bottom:6px;
+        }
+        input, textarea{
+            width:100%;
+            padding:12px 14px;
+            border:1px solid #d5dce6;
+            border-radius:10px;
+            font-size:14px;
+            outline:none;
+            transition:.2s;
+        }
+        input:focus, textarea:focus{
+            border-color:#2563eb;
+            box-shadow:0 0 0 3px rgba(37,99,235,.12);
+        }
+        input[disabled]{
+            background:#f3f4f6;
+            color:#6b7280;
+        }
+        textarea{
+            resize:vertical;
+            min-height:80px;
+        }
+        .save-btn{
+            width:100%;
+            padding:14px;
+            border:none;
+            border-radius:10px;
+            background:linear-gradient(135deg,#2563eb,#1d4ed8);
+            color:#fff;
+            font-size:15px;
+            font-weight:700;
+            cursor:pointer;
+            transition:.2s;
+        }
+        .save-btn:hover{
+            transform:translateY(-1px);
+            box-shadow:0 8px 18px rgba(37,99,235,.35);
+        }
+        .back-link{
+            display:inline-block;
+            margin-top:16px;
+            color:#2563eb;
+            font-weight:600;
+            text-decoration:none;
+            font-size:14px;
+        }
+        .back-link:hover{
+            text-decoration:underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="card-header">
+        <h2>My Profile</h2>
+        <p>Keep your details up to date for faster applications</p>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-success" th:if="${success != null}" th:text="${success}"></div>
+
+        <form th:action="@{/student/profile/update}" th:object="${student}" method="post">
+            <div class="field-group">
+                <label>Email</label>
+                <input type="text" th:value="${student.email}" disabled />
+            </div>
+
+            <div class="field-group">
+                <label>Full Name</label>
+                <input type="text" name="name" th:value="${student.name}" required />
+            </div>
+
+            <div class="field-group">
+                <label>Phone Number</label>
+                <input type="text" name="phone" th:value="${student.phone}" required />
+            </div>
+
+            <div class="field-group">
+                <label>Skills (comma separated)</label>
+                <textarea name="skills" th:text="${student.skills}" placeholder="e.g. Java, Spring Boot, SQL"></textarea>
+            </div>
+
+            <button type="submit" class="save-btn">Save Changes</button>
+        </form>
+
+        <a th:href="@{/student/dashboard}" class="back-link">&larr; Back to Dashboard</a>
+    </div>
+</div>
+
+</body>
+</html>

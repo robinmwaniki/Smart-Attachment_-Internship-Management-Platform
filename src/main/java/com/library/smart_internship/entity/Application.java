@@ -20,7 +20,7 @@ public class Application {
     @JoinColumn(name = "internship_id")
     private Internship internship;
 
-    private String status = "PENDING"; // PENDING, APPROVED, REJECTED
+    private String status = "PENDING";
 
     @Column(columnDefinition = "bytea")
     private byte[] resumeData;
@@ -29,7 +29,16 @@ public class Application {
 
     private String resumeContentType;
 
-    private String feedback; // Stores interview details or feedback message
+    private String feedback;
+
+    private String applicantName;
+
+    private Integer applicantAge;
+
+    private String applicantPhone;
+
+    @Column(columnDefinition = "text")
+    private String coverLetter;
 
     public boolean hasResume() {
         return resumeData != null && resumeData.length > 0;

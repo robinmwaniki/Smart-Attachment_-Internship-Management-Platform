@@ -19,8 +19,6 @@
       color:#2d3748;
     }
 
-
-
     .sidebar{
       width:260px;
       background:linear-gradient(180deg,#1e3c72,#2a5298);
@@ -43,7 +41,7 @@
       padding:20px 0;
     }
 
-    .sidebar button{
+    .sidebar button, .sidebar a.nav-link{
       width:100%;
       background:none;
       border:none;
@@ -55,9 +53,11 @@
       font-weight:500;
       transition:.3s;
       border-left:4px solid transparent;
+      display:block;
+      text-decoration:none;
     }
 
-    .sidebar button:hover{
+    .sidebar button:hover, .sidebar a.nav-link:hover{
       background:rgba(255,255,255,.12);
       color:#fff;
       border-left:4px solid #fff;
@@ -89,8 +89,6 @@
     .logout-btn:hover{
       background:#c1121f;
     }
-
-
 
     .main-content{
       flex:1;
@@ -125,8 +123,6 @@
       padding-bottom:12px;
       border-bottom:3px solid #4f8ef7;
     }
-
-
 
     .search-box{
       display:flex;
@@ -164,7 +160,23 @@
       background:#1d4ed8;
     }
 
+    .alert{
+      padding:14px 18px;
+      border-radius:10px;
+      margin-bottom:24px;
+      font-size:14px;
+      font-weight:600;
+    }
 
+    .alert-success{
+      background:#d1fae5;
+      color:#065f46;
+    }
+
+    .alert-error{
+      background:#fee2e2;
+      color:#991b1b;
+    }
 
     .grid{
       display:grid;
@@ -198,47 +210,120 @@
       line-height:1.6;
     }
 
-    /* Apply Form */
-
-    .apply-form{
+    .applied-badge{
+      display:inline-block;
       margin-top:18px;
-      background:#f8fafc;
-      border:1px solid #e5e7eb;
-      border-radius:12px;
-      padding:18px;
+      width:100%;
+      text-align:center;
+      padding:13px;
+      border-radius:10px;
+      background:#e0f2fe;
+      color:#075985;
+      font-weight:700;
+      font-size:14px;
     }
 
-    .apply-form label{
+    .apply-form-v2{
+      margin-top:18px;
+      background:#ffffff;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      overflow:hidden;
+    }
+    .apply-form-v2 .form-header{
+      background:#f8fafc;
+      padding:14px 20px;
+      border-bottom:1px solid #e5e7eb;
+      font-weight:700;
+      color:#1e3a5f;
+      font-size:13px;
+      letter-spacing:.3px;
+      text-transform:uppercase;
+    }
+    .apply-form-v2 .form-body{
+      padding:20px;
+    }
+    .apply-form-v2 .field-group{
+      margin-bottom:16px;
+    }
+    .apply-form-v2 label{
       display:block;
-      margin-bottom:8px;
+      font-size:13px;
       font-weight:600;
       color:#374151;
+      margin-bottom:6px;
     }
-
-    .apply-form input[type=file]{
-      width:100%;
-      margin-bottom:15px;
+    .apply-form-v2 label .required{
+      color:#dc2626;
+      margin-left:2px;
     }
-
-    .apply-btn{
+    .apply-form-v2 input[type=text],
+    .apply-form-v2 input[type=number],
+    .apply-form-v2 input[type=tel],
+    .apply-form-v2 textarea{
       width:100%;
-      padding:13px;
+      padding:11px 14px;
+      border:1px solid #d5dce6;
+      border-radius:9px;
+      font-size:14px;
+      transition:.2s;
+      font-family:inherit;
+    }
+    .apply-form-v2 textarea{
+      resize:vertical;
+      min-height:70px;
+    }
+    .apply-form-v2 input:focus, .apply-form-v2 textarea:focus{
+      border-color:#2563eb;
+      box-shadow:0 0 0 3px rgba(37,99,235,.12);
+      outline:none;
+    }
+    .apply-form-v2 .file-drop{
+      border:2px dashed #d5dce6;
+      border-radius:10px;
+      padding:18px;
+      text-align:center;
+      background:#fafcff;
+      cursor:pointer;
+      transition:.2s;
+      display:block;
+    }
+    .apply-form-v2 .file-drop:hover{
+      border-color:#2563eb;
+      background:#f0f6ff;
+    }
+    .apply-form-v2 .file-drop input[type=file]{
+      display:none;
+    }
+    .apply-form-v2 .file-drop-label{
+      font-size:13px;
+      color:#6b7280;
+    }
+    .apply-form-v2 .file-drop-label strong{
+      color:#2563eb;
+    }
+    .apply-form-v2 .submit-row{
+      padding:16px 20px;
+      background:#f8fafc;
+      border-top:1px solid #e5e7eb;
+    }
+    .apply-btn-v2{
+      width:100%;
+      padding:14px;
       border:none;
       border-radius:10px;
       background:linear-gradient(135deg,#10b981,#059669);
       color:#fff;
       font-size:15px;
-      font-weight:600;
+      font-weight:700;
       cursor:pointer;
-      transition:.3s;
+      transition:.2s;
+      letter-spacing:.2px;
     }
-
-    .apply-btn:hover{
-      transform:translateY(-2px);
-      box-shadow:0 10px 20px rgba(16,185,129,.3);
+    .apply-btn-v2:hover{
+      transform:translateY(-1px);
+      box-shadow:0 8px 18px rgba(16,185,129,.35);
     }
-
-
 
     table{
       width:100%;
@@ -266,8 +351,6 @@
       background:#f8fbff;
     }
 
-
-
     .status-badge{
       display:inline-block;
       padding:7px 14px;
@@ -291,8 +374,6 @@
       color:#991b1b;
     }
 
-
-
     .empty-state,
     div[style*="No internship"],
     div[style*="not submitted"]{
@@ -303,8 +384,6 @@
       color:#6b7280;
       box-shadow:0 10px 25px rgba(0,0,0,.05);
     }
-
-
 
     @media(max-width:900px){
 
@@ -328,24 +407,25 @@
 </head>
 <body>
 
-
 <div class="sidebar">
   <h2>Student Portal</h2>
   <nav>
     <button type="button" onclick="switchTab('find-internships')" id="tab-find-internships" class="active">Find Internships</button>
     <button type="button" onclick="switchTab('my-applications')" id="tab-my-applications">My Applications</button>
+    <a th:href="@{/student/profile}" class="nav-link">My Profile</a>
   </nav>
   <form th:action="@{/logout}" method="post" class="logout-form">
     <button type="submit" class="logout-btn">Logout</button>
   </form>
 </div>
 
-
 <div class="main-content">
-
 
   <div id="find-internships" class="tab-section active">
     <h3>Find Internship & Attachment Opportunities</h3>
+
+    <div class="alert alert-success" th:if="${success != null}" th:text="${success}"></div>
+    <div class="alert alert-error" th:if="${error != null}" th:text="${error}"></div>
 
     <form th:action="@{/student/dashboard}" method="get" class="search-box">
       <input type="text" name="keyword" th:value="${keyword}" placeholder="Filter by title or skills..." />
@@ -366,16 +446,52 @@
                 style="color:#dc2626; font-weight:600;">Full</span>
         </p>
 
+        <div th:if="${appliedInternshipIds.contains(program.id)}" class="applied-badge">
+          &#10003; Already Applied
+        </div>
 
-        <form th:action="@{/student/submit-application}" method="post" enctype="multipart/form-data" class="apply-form"
-              th:if="${program.slotsAvailable == null or program.slotsAvailable > 0}">
-          <input type="hidden" name="internshipId" th:value="${program.id}" />
-          <label>Upload Resume (PDF/Word):</label>
-          <input type="file" name="file" required />
-          <button type="submit" class="apply-btn">Apply Now</button>
+        <form th:if="${!appliedInternshipIds.contains(program.id) and (program.slotsAvailable == null or program.slotsAvailable > 0)}"
+              th:action="@{/student/submit-application}" method="post" enctype="multipart/form-data" class="apply-form-v2">
+          <div class="form-header">Apply for this position</div>
+          <div class="form-body">
+            <input type="hidden" name="internshipId" th:value="${program.id}" />
+
+            <div class="field-group">
+              <label>Full Name<span class="required">*</span></label>
+              <input type="text" name="applicantName" th:value="${student.name}" required />
+            </div>
+
+            <div class="field-group">
+              <label>Age<span class="required">*</span></label>
+              <input type="number" name="applicantAge" min="15" max="100" required />
+            </div>
+
+            <div class="field-group">
+              <label>Phone Number<span class="required">*</span></label>
+              <input type="tel" name="applicantPhone" th:value="${student.phone}" required />
+            </div>
+
+            <div class="field-group">
+              <label>Cover Letter (optional)</label>
+              <textarea name="coverLetter" placeholder="Briefly say why you're a good fit..."></textarea>
+            </div>
+
+            <div class="field-group">
+              <label>Resume<span class="required">*</span></label>
+              <label class="file-drop" onclick="this.querySelector('input').click()">
+                <input type="file" name="file" required
+                       onchange="this.closest('.file-drop').querySelector('.file-drop-label').innerText = this.files[0] ? this.files[0].name : 'Click to upload PDF or Word document'" />
+                <div class="file-drop-label">Click to upload <strong>PDF or Word</strong> document</div>
+              </label>
+            </div>
+          </div>
+          <div class="submit-row">
+            <button type="submit" class="apply-btn-v2">Submit Application</button>
+          </div>
         </form>
-        <p th:if="${program.slotsAvailable != null and program.slotsAvailable <= 0}"
-           style="color:#9ca3af; font-style:italic;">This program is currently full.</p>
+
+        <p th:if="${!appliedInternshipIds.contains(program.id) and program.slotsAvailable != null and program.slotsAvailable <= 0}"
+           style="color:#9ca3af; font-style:italic; margin-top:18px;">This program is currently full.</p>
       </div>
 
       <div th:if="${#lists.isEmpty(internships)}" style="grid-column: 1 / -1; text-align: center; color: #777; padding: 20px;">
@@ -383,7 +499,6 @@
       </div>
     </div>
   </div>
-
 
   <div id="my-applications" class="tab-section">
     <h3>My Application Status Tracker</h3>
@@ -419,7 +534,6 @@
 
 </div>
 
-
 <script>
   function switchTab(tabId) {
     document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
@@ -428,7 +542,6 @@
     document.getElementById(tabId).classList.add('active');
     document.getElementById('tab-' + tabId).classList.add('active');
   }
-
 
   window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);

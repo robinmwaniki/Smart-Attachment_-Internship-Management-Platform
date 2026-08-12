@@ -53,16 +53,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-
                         .requestMatchers("/register", "/login", "/css/**", "/js/**", "/api/**").permitAll()
-
                         .requestMatchers("/recruiter/**").hasRole("RECRUITER")
                         .requestMatchers("/dashboard", "/student/**").hasRole("STUDENT")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-
                         .successHandler((request, response, authentication) -> {
                             boolean isRecruiter = authentication.getAuthorities().stream()
                                     .anyMatch(a -> a.getAuthority().equals("ROLE_RECRUITER"));
@@ -70,7 +67,7 @@ public class SecurityConfig {
                             if (isRecruiter) {
                                 response.sendRedirect("/recruiter/dashboard");
                             } else {
-                                response.sendRedirect("/dashboard");
+                                response.sendRedirect("/student/dashboard");
                             }
                         })
                         .permitAll()
