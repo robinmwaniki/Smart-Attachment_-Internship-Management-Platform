@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Smart Internship Platform</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo.jpg}">
+    <style>
+        *{ margin:0; padding:0; box-sizing:border-box; }
+        body{
+            font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+            background:linear-gradient(135deg,#1e3c72,#2a5298);
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#fff;
+            padding:20px;
+        }
+        .hero{
+            max-width:640px;
+            text-align:center;
+        }
+        .hero h1{
+            font-size:42px;
+            margin-bottom:18px;
+            font-weight:800;
+            letter-spacing:-.5px;
+        }
+        .hero p{
+            font-size:17px;
+            opacity:.9;
+            line-height:1.6;
+            margin-bottom:36px;
+        }
+        .cta-row{
+            display:flex;
+            gap:16px;
+            justify-content:center;
+            flex-wrap:wrap;
+        }
+        .btn{
+            padding:15px 32px;
+            border-radius:12px;
+            font-weight:700;
+            font-size:15px;
+            text-decoration:none;
+            transition:.2s;
+            display:inline-block;
+        }
+        .btn-primary{
+            background:#fff;
+            color:#1e3c72;
+        }
+        .btn-primary:hover{
+            transform:translateY(-2px);
+            box-shadow:0 10px 25px rgba(0,0,0,.2);
+        }
+        .btn-secondary{
+            background:rgba(255,255,255,.12);
+            color:#fff;
+            border:1px solid rgba(255,255,255,.4);
+        }
+        .btn-secondary:hover{
+            background:rgba(255,255,255,.2);
+        }
+        .features{
+            margin-top:60px;
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:20px;
+            text-align:left;
+        }
+        .feature{
+            background:rgba(255,255,255,.08);
+            border-radius:14px;
+            padding:20px;
+        }
+        .feature h3{
+            font-size:15px;
+            margin-bottom:8px;
+        }
+        .feature p{
+            font-size:13px;
+            opacity:.8;
+            margin-bottom:0;
+        }
+        @media(max-width:640px){
+            .features{ grid-template-columns:1fr; }
+            .hero h1{ font-size:32px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>Find Your Next Internship</h1>
+    <p>Smart Internship connects students with real attachment and internship opportunities, and helps recruiters find the right talent fast.</p>
+
+    <div class="cta-row">
+        <a th:href="@{/register}" class="btn btn-primary">Get Started</a>
+        <a th:href="@{/login}" class="btn btn-secondary">Log In</a>
+    </div>
+
+    <div class="features">
+        <div class="feature">
+            <h3>For Students</h3>
+            <p>Browse open programs, apply with a resume and cover letter, and track your application status in real time.</p>
+        </div>
+        <div class="feature">
+            <h3>For Recruiters</h3>
+            <p>Post programs, set application deadlines and available slots, and review applicants in one place.</p>
+        </div>
+        <div class="feature">
+            <h3>Stay Informed</h3>
+            <p>Get email notifications on new applications and status updates, so nothing falls through the cracks.</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -445,6 +445,9 @@
           <span th:if="${program.slotsAvailable != null and program.slotsAvailable <= 0}"
                 style="color:#dc2626; font-weight:600;">Full</span>
         </p>
+        <p th:if="${program.applicationDeadline != null}">
+          <strong>Apply by:</strong> <span th:text="${program.applicationDeadline}">2026-01-01</span>
+        </p>
 
         <div th:if="${appliedInternshipIds.contains(program.id)}" class="applied-badge">
           &#10003; Already Applied

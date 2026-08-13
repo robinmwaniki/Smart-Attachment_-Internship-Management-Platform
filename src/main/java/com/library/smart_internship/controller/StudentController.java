@@ -6,6 +6,7 @@ import com.library.smart_internship.entity.Student;
 import com.library.smart_internship.repository.ApplicationRepository;
 import com.library.smart_internship.repository.InternshipRepository;
 import com.library.smart_internship.repository.StudentRepository;
+import com.library.smart_internship.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +28,7 @@ public class StudentController {
     private final InternshipRepository internshipRepository;
     private final StudentRepository studentRepository;
     private final ApplicationRepository applicationRepository;
+    private final EmailService emailService;
 
     @GetMapping("/dashboard")
     public String studentDashboard(@RequestParam(value = "keyword", required = false) String keyword,
@@ -44,6 +46,7 @@ public class StudentController {
 
         availableInternships = availableInternships.stream()
                 .filter(Internship::isActive)
+                .filter(program -> !program.isExpired())
                 .collect(Collectors.toList());
 
         List<Application> myApplications = applicationRepository.findByStudentId(student.getId());
@@ -83,6 +86,11 @@ public class StudentController {
             return "redirect:/student/dashboard";
         }
 
+        if (internship.isExpired()) {
+            redirectAttributes.addFlashAttribute("error", "This program's application deadline has passed.");
+            return "redirect:/student/dashboard";
+        }
+
         Application application = new Application();
         application.setStudent(student);
         application.setInternship(internship);
@@ -99,6 +107,19 @@ public class StudentController {
         }
 
         applicationRepository.save(application);
+
+        if (internship.getRecruiter() != null && internship.getRecruiter().getEmail() != null) {
+            try {
+                emailService.sendNewApplicationEmail(
+                        internship.getRecruiter().getEmail(),
+                        applicantName,
+                        internship.getTitle()
+                );
+            } catch (Exception e) {
+                System.err.println("New application email failed: " + e.getMessage());
+            }
+        }
+
         redirectAttributes.addFlashAttribute("success", "Application submitted successfully!");
 
         return "redirect:/student/dashboard";

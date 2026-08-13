@@ -296,6 +296,7 @@
                     <th>Company</th>
                     <th>Skills Required</th>
                     <th>Slots Available</th>
+                    <th>Deadline</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -305,6 +306,10 @@
                     <td th:text="${program.skillsRequired}">Skills</td>
                     <td>
                         <span class="badge-approved" th:text="${program.slotsAvailable} + ' slots'">Slots</span>
+                    </td>
+                    <td>
+                        <span th:if="${program.applicationDeadline != null}" th:text="${program.applicationDeadline}">2026-01-01</span>
+                        <span th:if="${program.applicationDeadline == null}" style="color:#9ca3af;">No deadline</span>
                     </td>
                 </tr>
                 </tbody>
@@ -334,6 +339,11 @@
                 <div class="form-group">
                     <label>Available Slots:</label>
                     <input type="number" th:field="*{slotsAvailable}" placeholder="e.g. 5" min="1" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Application Deadline:</label>
+                    <input type="date" th:field="*{applicationDeadline}" required />
                 </div>
 
                 <button type="submit">Post Program</button>
