@@ -46,7 +46,7 @@ public class MatchingService {
         Set<String> requiredSkills = extractSkills(requiredSkillsRaw);
 
         if (requiredSkills.isEmpty()) {
-            return new MatchResult(internship, 100, 0); // If no skills required, it's a 100% match
+            return new MatchResult(internship, 100, 0);
         }
 
 
