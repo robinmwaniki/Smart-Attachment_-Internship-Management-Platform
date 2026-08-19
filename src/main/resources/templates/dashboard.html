@@ -300,7 +300,7 @@
     <div class="grid">
       <div class="card" th:each="program : ${internships}">
         <img th:if="${program.companyWebsite != null and !program.companyWebsite.isEmpty()}"
-             th:src="'https://logo.clearbit.com/' + ${program.companyWebsite}"
+             th:src="'https://img.logo.dev/' + ${program.companyWebsite} + '?token=pk_YNL_i-6fTA2dHuwqAEV6_Q'"
              onerror="this.style.display='none'"
              style="height:36px;margin-bottom:10px;border-radius:6px;" />
 
