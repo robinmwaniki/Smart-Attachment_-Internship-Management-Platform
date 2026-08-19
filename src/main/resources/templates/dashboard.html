@@ -5,12 +5,7 @@
   <title>Student Dashboard - Smart Internship</title>
   <link rel="icon" type="image/png" th:href="@{/images/logo.jpg}">
   <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-    }
-
+    *{ margin:0; padding:0; box-sizing:border-box; }
     body{
       font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
       background:#eef2f7;
@@ -18,7 +13,6 @@
       min-height:100vh;
       color:#2d3748;
     }
-
     .sidebar{
       width:260px;
       background:linear-gradient(180deg,#1e3c72,#2a5298);
@@ -27,7 +21,6 @@
       flex-direction:column;
       box-shadow:4px 0 18px rgba(0,0,0,.15);
     }
-
     .sidebar h2{
       padding:28px 20px;
       text-align:center;
@@ -36,11 +29,7 @@
       letter-spacing:.5px;
       border-bottom:1px solid rgba(255,255,255,.15);
     }
-
-    .sidebar nav{
-      padding:20px 0;
-    }
-
+    .sidebar nav{ padding:20px 0; }
     .sidebar button, .sidebar a.nav-link{
       width:100%;
       background:none;
@@ -56,24 +45,17 @@
       display:block;
       text-decoration:none;
     }
-
     .sidebar button:hover, .sidebar a.nav-link:hover{
       background:rgba(255,255,255,.12);
       color:#fff;
       border-left:4px solid #fff;
     }
-
     .sidebar .active{
       background:rgba(255,255,255,.18);
       color:#fff;
       border-left:4px solid #ffd166;
     }
-
-    .logout-form{
-      margin-top:auto;
-      padding:20px;
-    }
-
+    .logout-form{ margin-top:auto; padding:20px; }
     .logout-btn{
       width:100%;
       padding:14px;
@@ -85,37 +67,14 @@
       cursor:pointer;
       transition:.3s;
     }
-
-    .logout-btn:hover{
-      background:#c1121f;
-    }
-
-    .main-content{
-      flex:1;
-      padding:35px;
-      overflow-y:auto;
-    }
-
-    .tab-section{
-      display:none;
-      animation:fade .35s ease;
-    }
-
-    .tab-section.active{
-      display:block;
-    }
-
+    .logout-btn:hover{ background:#c1121f; }
+    .main-content{ flex:1; padding:35px; overflow-y:auto; }
+    .tab-section{ display:none; animation:fade .35s ease; }
+    .tab-section.active{ display:block; }
     @keyframes fade{
-      from{
-        opacity:0;
-        transform:translateY(8px);
-      }
-      to{
-        opacity:1;
-        transform:translateY(0);
-      }
+      from{ opacity:0; transform:translateY(8px); }
+      to{ opacity:1; transform:translateY(0); }
     }
-
     h3{
       font-size:28px;
       color:#1e3a5f;
@@ -123,13 +82,7 @@
       padding-bottom:12px;
       border-bottom:3px solid #4f8ef7;
     }
-
-    .search-box{
-      display:flex;
-      gap:15px;
-      margin-bottom:30px;
-    }
-
+    .search-box{ display:flex; gap:15px; margin-bottom:30px; }
     .search-box input{
       flex:1;
       padding:14px 18px;
@@ -139,12 +92,10 @@
       outline:none;
       transition:.3s;
     }
-
     .search-box input:focus{
       border-color:#4f8ef7;
       box-shadow:0 0 0 4px rgba(79,142,247,.15);
     }
-
     .search-box button{
       padding:14px 28px;
       border:none;
@@ -155,11 +106,7 @@
       cursor:pointer;
       transition:.3s;
     }
-
-    .search-box button:hover{
-      background:#1d4ed8;
-    }
-
+    .search-box button:hover{ background:#1d4ed8; }
     .alert{
       padding:14px 18px;
       border-radius:10px;
@@ -167,23 +114,13 @@
       font-size:14px;
       font-weight:600;
     }
-
-    .alert-success{
-      background:#d1fae5;
-      color:#065f46;
-    }
-
-    .alert-error{
-      background:#fee2e2;
-      color:#991b1b;
-    }
-
+    .alert-success{ background:#d1fae5; color:#065f46; }
+    .alert-error{ background:#fee2e2; color:#991b1b; }
     .grid{
       display:grid;
       grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
       gap:25px;
     }
-
     .card{
       background:#fff;
       border-radius:18px;
@@ -192,24 +129,12 @@
       transition:.3s;
       border:1px solid #edf2f7;
     }
-
     .card:hover{
       transform:translateY(-6px);
       box-shadow:0 18px 35px rgba(0,0,0,.12);
     }
-
-    .card h4{
-      color:#2563eb;
-      font-size:22px;
-      margin-bottom:15px;
-    }
-
-    .card p{
-      margin:8px 0;
-      color:#555;
-      line-height:1.6;
-    }
-
+    .card h4{ color:#2563eb; font-size:22px; margin-bottom:15px; }
+    .card p{ margin:8px 0; color:#555; line-height:1.6; }
     .applied-badge{
       display:inline-block;
       margin-top:18px;
@@ -222,7 +147,6 @@
       font-weight:700;
       font-size:14px;
     }
-
     .apply-form-v2{
       margin-top:18px;
       background:#ffffff;
@@ -240,12 +164,8 @@
       letter-spacing:.3px;
       text-transform:uppercase;
     }
-    .apply-form-v2 .form-body{
-      padding:20px;
-    }
-    .apply-form-v2 .field-group{
-      margin-bottom:16px;
-    }
+    .apply-form-v2 .form-body{ padding:20px; }
+    .apply-form-v2 .field-group{ margin-bottom:16px; }
     .apply-form-v2 label{
       display:block;
       font-size:13px;
@@ -253,10 +173,7 @@
       color:#374151;
       margin-bottom:6px;
     }
-    .apply-form-v2 label .required{
-      color:#dc2626;
-      margin-left:2px;
-    }
+    .apply-form-v2 label .required{ color:#dc2626; margin-left:2px; }
     .apply-form-v2 input[type=text],
     .apply-form-v2 input[type=number],
     .apply-form-v2 input[type=tel],
@@ -269,10 +186,7 @@
       transition:.2s;
       font-family:inherit;
     }
-    .apply-form-v2 textarea{
-      resize:vertical;
-      min-height:70px;
-    }
+    .apply-form-v2 textarea{ resize:vertical; min-height:70px; }
     .apply-form-v2 input:focus, .apply-form-v2 textarea:focus{
       border-color:#2563eb;
       box-shadow:0 0 0 3px rgba(37,99,235,.12);
@@ -292,16 +206,9 @@
       border-color:#2563eb;
       background:#f0f6ff;
     }
-    .apply-form-v2 .file-drop input[type=file]{
-      display:none;
-    }
-    .apply-form-v2 .file-drop-label{
-      font-size:13px;
-      color:#6b7280;
-    }
-    .apply-form-v2 .file-drop-label strong{
-      color:#2563eb;
-    }
+    .apply-form-v2 .file-drop input[type=file]{ display:none; }
+    .apply-form-v2 .file-drop-label{ font-size:13px; color:#6b7280; }
+    .apply-form-v2 .file-drop-label strong{ color:#2563eb; }
     .apply-form-v2 .submit-row{
       padding:16px 20px;
       background:#f8fafc;
@@ -324,7 +231,6 @@
       transform:translateY(-1px);
       box-shadow:0 8px 18px rgba(16,185,129,.35);
     }
-
     table{
       width:100%;
       border-collapse:collapse;
@@ -333,24 +239,9 @@
       overflow:hidden;
       box-shadow:0 12px 30px rgba(0,0,0,.08);
     }
-
-    th{
-      background:#2563eb;
-      color:#fff;
-      padding:16px;
-      text-align:left;
-      font-size:15px;
-    }
-
-    td{
-      padding:15px;
-      border-bottom:1px solid #edf2f7;
-    }
-
-    tbody tr:hover{
-      background:#f8fbff;
-    }
-
+    th{ background:#2563eb; color:#fff; padding:16px; text-align:left; font-size:15px; }
+    td{ padding:15px; border-bottom:1px solid #edf2f7; }
+    tbody tr:hover{ background:#f8fbff; }
     .status-badge{
       display:inline-block;
       padding:7px 14px;
@@ -358,22 +249,9 @@
       font-size:13px;
       font-weight:700;
     }
-
-    .status-PENDING{
-      background:#fff3cd;
-      color:#8a6d3b;
-    }
-
-    .status-APPROVED{
-      background:#d1fae5;
-      color:#065f46;
-    }
-
-    .status-REJECTED{
-      background:#fee2e2;
-      color:#991b1b;
-    }
-
+    .status-PENDING{ background:#fff3cd; color:#8a6d3b; }
+    .status-APPROVED{ background:#d1fae5; color:#065f46; }
+    .status-REJECTED{ background:#fee2e2; color:#991b1b; }
     .empty-state,
     div[style*="No internship"],
     div[style*="not submitted"]{
@@ -384,24 +262,11 @@
       color:#6b7280;
       box-shadow:0 10px 25px rgba(0,0,0,.05);
     }
-
     @media(max-width:900px){
-
-      body{
-        flex-direction:column;
-      }
-
-      .sidebar{
-        width:100%;
-      }
-
-      .grid{
-        grid-template-columns:1fr;
-      }
-
-      .search-box{
-        flex-direction:column;
-      }
+      body{ flex-direction:column; }
+      .sidebar{ width:100%; }
+      .grid{ grid-template-columns:1fr; }
+      .search-box{ flex-direction:column; }
     }
   </style>
 </head>
@@ -434,6 +299,11 @@
 
     <div class="grid">
       <div class="card" th:each="program : ${internships}">
+        <img th:if="${program.companyWebsite != null and !program.companyWebsite.isEmpty()}"
+             th:src="'https://logo.clearbit.com/' + ${program.companyWebsite}"
+             onerror="this.style.display='none'"
+             style="height:36px;margin-bottom:10px;border-radius:6px;" />
+
         <h4 th:text="${program.title}">Title</h4>
         <p><strong>Company:</strong> <span th:text="${program.company}">Company</span></p>
         <p><strong>Requirements:</strong> <span th:text="${program.skillsRequired}">Skills</span></p>
@@ -541,7 +411,6 @@
   function switchTab(tabId) {
     document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.sidebar button').forEach(el => el.classList.remove('active'));
-
     document.getElementById(tabId).classList.add('active');
     document.getElementById('tab-' + tabId).classList.add('active');
   }

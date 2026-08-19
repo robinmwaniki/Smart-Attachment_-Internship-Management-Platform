@@ -7,6 +7,7 @@ import com.library.smart_internship.repository.ApplicationRepository;
 import com.library.smart_internship.repository.InternshipRepository;
 import com.library.smart_internship.repository.StudentRepository;
 import com.library.smart_internship.service.EmailService;
+import com.library.smart_internship.service.SmsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +25,7 @@ public class RecruiterController {
     private final StudentRepository studentRepository;
     private final ApplicationRepository applicationRepository;
     private final EmailService emailService;
+    private final SmsService smsService;
 
     @GetMapping("/dashboard")
     public String recruiterDashboard(Principal principal, Model model) {
@@ -72,7 +74,6 @@ public class RecruiterController {
         application.setFeedback(feedback);
         applicationRepository.save(application);
 
-
         adjustSlotsForStatusChange(application.getInternship(), previousStatus, status);
 
         try {
@@ -87,6 +88,18 @@ public class RecruiterController {
             System.err.println("Email failed to dispatch: " + e.getMessage());
         }
 
+        try {
+            String smsText = String.format(
+                    "Hi %s, your application for %s is now %s. Check your dashboard for details.",
+                    application.getStudent().getName(),
+                    application.getInternship().getTitle(),
+                    status
+            );
+            smsService.sendSms(application.getStudent().getPhone(), smsText);
+        } catch (Exception e) {
+            System.err.println("SMS failed to dispatch: " + e.getMessage());
+        }
+
         return "redirect:/recruiter/dashboard";
     }
 
@@ -99,11 +112,9 @@ public class RecruiterController {
         boolean isApproved = "APPROVED".equalsIgnoreCase(newStatus);
 
         if (!wasApproved && isApproved) {
-            // Newly approved: take a slot, but never go below zero.
             int remaining = Math.max(internship.getSlotsAvailable() - 1, 0);
             internship.setSlotsAvailable(remaining);
         } else if (wasApproved && !isApproved) {
-
             internship.setSlotsAvailable(internship.getSlotsAvailable() + 1);
         }
 
