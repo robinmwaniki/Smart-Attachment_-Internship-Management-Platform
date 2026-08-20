@@ -82,9 +82,10 @@
       padding-bottom:12px;
       border-bottom:3px solid #4f8ef7;
     }
-    .search-box{ display:flex; gap:15px; margin-bottom:30px; }
-    .search-box input{
+    .search-box{ display:flex; gap:15px; margin-bottom:30px; flex-wrap:wrap; }
+    .search-box input, .search-box select{
       flex:1;
+      min-width:180px;
       padding:14px 18px;
       border:1px solid #d5dce6;
       border-radius:10px;
@@ -92,7 +93,7 @@
       outline:none;
       transition:.3s;
     }
-    .search-box input:focus{
+    .search-box input:focus, .search-box select:focus{
       border-color:#4f8ef7;
       box-shadow:0 0 0 4px rgba(79,142,247,.15);
     }
@@ -135,6 +136,16 @@
     }
     .card h4{ color:#2563eb; font-size:22px; margin-bottom:15px; }
     .card p{ margin:8px 0; color:#555; line-height:1.6; }
+    .category-badge{
+      display:inline-block;
+      background:#eef2ff;
+      color:#4338ca;
+      font-size:12px;
+      font-weight:700;
+      padding:4px 10px;
+      border-radius:20px;
+      margin-bottom:10px;
+    }
     .applied-badge{
       display:inline-block;
       margin-top:18px;
@@ -294,6 +305,16 @@
 
     <form th:action="@{/student/dashboard}" method="get" class="search-box">
       <input type="text" name="keyword" th:value="${keyword}" placeholder="Filter by title or skills..." />
+      <select name="category">
+        <option value="">All Categories</option>
+        <option value="Software Development" th:selected="${selectedCategory == 'Software Development'}">Software Development</option>
+        <option value="Finance" th:selected="${selectedCategory == 'Finance'}">Finance</option>
+        <option value="Marketing" th:selected="${selectedCategory == 'Marketing'}">Marketing</option>
+        <option value="Design" th:selected="${selectedCategory == 'Design'}">Design</option>
+        <option value="Data & Analytics" th:selected="${selectedCategory == 'Data & Analytics'}">Data & Analytics</option>
+        <option value="Operations" th:selected="${selectedCategory == 'Operations'}">Operations</option>
+        <option value="Other" th:selected="${selectedCategory == 'Other'}">Other</option>
+      </select>
       <button type="submit">Filter</button>
     </form>
 
@@ -303,6 +324,8 @@
              th:src="'https://img.logo.dev/' + ${program.companyWebsite} + '?token=pk_YNL_i-6fTA2dHuwqAEV6_Q'"
              onerror="this.style.display='none'"
              style="height:36px;margin-bottom:10px;border-radius:6px;" />
+
+        <div th:if="${program.category != null and !program.category.isEmpty()}" class="category-badge" th:text="${program.category}">Category</div>
 
         <h4 th:text="${program.title}">Title</h4>
         <p><strong>Company:</strong> <span th:text="${program.company}">Company</span></p>
@@ -417,7 +440,7 @@
 
   window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('keyword')) {
+    if (urlParams.has('keyword') || urlParams.has('category')) {
       switchTab('find-internships');
     }
   };

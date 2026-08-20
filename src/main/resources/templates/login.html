@@ -165,6 +165,12 @@
     <h2>Login into your account</h2>
     <div th:if="${param.error}" class="error">Invalid email or password.</div>
     <div th:if="${param.logout}" style="color: green; text-align: center; margin-bottom: 10px; font-size: 14px;">You have been logged out successfully.</div>
+    <div th:if="${param.error}" style="background:#fee2e2;color:#991b1b;padding:12px 16px;border-radius:10px;margin-bottom:16px;font-weight:600;font-size:14px;">
+        Invalid email or password.
+    </div>
+    <div th:if="${param.locked}" style="background:#fee2e2;color:#991b1b;padding:12px 16px;border-radius:10px;margin-bottom:16px;font-weight:600;font-size:14px;">
+        Too many failed attempts. Your account is temporarily locked — try again in 15 minutes.
+    </div>
 
     <form th:action="@{/login}" method="post">
         <div class="form-group">

@@ -1,6 +1,7 @@
 package com.library.smart_internship.config;
 
 import com.library.smart_internship.repository.StudentRepository;
+import com.library.smart_internship.service.LoginAttemptService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final StudentRepository studentRepository;
+    private final LoginAttemptService loginAttemptService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -29,6 +31,11 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return email -> {
+            if (loginAttemptService.isLocked(email)) {
+                throw new org.springframework.security.authentication.LockedException(
+                        "Account temporarily locked due to too many failed login attempts. Try again in 15 minutes.");
+            }
+
             var student = studentRepository.findAll().stream()
                     .filter(s -> s.getEmail().equals(email))
                     .findFirst()
@@ -61,6 +68,8 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .successHandler((request, response, authentication) -> {
+                            loginAttemptService.loginSucceeded(authentication.getName());
+
                             boolean isRecruiter = authentication.getAuthorities().stream()
                                     .anyMatch(a -> a.getAuthority().equals("ROLE_RECRUITER"));
 
@@ -68,6 +77,18 @@ public class SecurityConfig {
                                 response.sendRedirect("/recruiter/dashboard");
                             } else {
                                 response.sendRedirect("/student/dashboard");
+                            }
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            String username = request.getParameter("username");
+                            if (!(exception instanceof org.springframework.security.authentication.LockedException)) {
+                                loginAttemptService.loginFailed(username);
+                            }
+
+                            if (loginAttemptService.isLocked(username)) {
+                                response.sendRedirect("/login?locked");
+                            } else {
+                                response.sendRedirect("/login?error");
                             }
                         })
                         .permitAll()

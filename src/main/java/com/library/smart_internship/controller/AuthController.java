@@ -1,7 +1,6 @@
 package com.library.smart_internship.controller;
 
-import com.library.smart_internship.dto.MatchResult;
-import com.library.smart_internship.entity.Application;
+
 import com.library.smart_internship.entity.PasswordResetToken;
 import com.library.smart_internship.entity.Student;
 import com.library.smart_internship.repository.ApplicationRepository;
@@ -19,9 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.security.Principal;
+
 import java.time.LocalDateTime;
-import java.util.List;
+
 import java.util.UUID;
 
 @Controller

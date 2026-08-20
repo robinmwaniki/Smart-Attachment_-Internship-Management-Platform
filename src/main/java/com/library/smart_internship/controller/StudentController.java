@@ -32,6 +32,7 @@ public class StudentController {
 
     @GetMapping("/dashboard")
     public String studentDashboard(@RequestParam(value = "keyword", required = false) String keyword,
+                                   @RequestParam(value = "category", required = false) String category,
                                    Principal principal,
                                    Model model) {
         Student student = getStudent(principal);
@@ -47,6 +48,7 @@ public class StudentController {
         availableInternships = availableInternships.stream()
                 .filter(Internship::isActive)
                 .filter(program -> !program.isExpired())
+                .filter(program -> category == null || category.isEmpty() || category.equals(program.getCategory()))
                 .collect(Collectors.toList());
 
         List<Application> myApplications = applicationRepository.findByStudentId(student.getId());
@@ -60,6 +62,7 @@ public class StudentController {
         model.addAttribute("myApplications", myApplications);
         model.addAttribute("appliedInternshipIds", appliedInternshipIds);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("selectedCategory", category);
 
         return "dashboard";
     }

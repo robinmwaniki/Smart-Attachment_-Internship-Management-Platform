@@ -17,6 +17,7 @@ public class Internship {
     private String title;
     private String company;
     private String companyWebsite;
+    private String category;
     private String skillsRequired;
     private boolean isActive = true;
 

@@ -171,6 +171,23 @@
         td form select{ width:140px; }
         td form input{ flex:1; }
         .tab-section { display: none; }
+        .bulk-bar{
+            display:flex;
+            gap:10px;
+            margin-bottom:15px;
+            align-items:center;
+            flex-wrap:wrap;
+        }
+        .bulk-bar select{ width:180px; }
+        .bulk-bar input{ flex:1; min-width:180px; }
+        .bulk-bar label{
+            display:flex;
+            align-items:center;
+            gap:6px;
+            font-weight:600;
+            margin-bottom:0;
+            white-space:nowrap;
+        }
 
         @media(max-width:992px){
             body { flex-direction: column; overflow: auto; height: auto; }
@@ -197,11 +214,11 @@
                 color:#374151;
                 margin-bottom:4px;
             }
-            #review-applications td:nth-child(1)::before{content:"Student";}
-            #review-applications td:nth-child(2)::before{content:"Program";}
-            #review-applications td:nth-child(3)::before{content:"Resume";}
-            #review-applications td:nth-child(4)::before{content:"Status";}
-            #review-applications td:nth-child(5)::before{content:"Review";}
+            #review-applications td:nth-child(2)::before{content:"Student";}
+            #review-applications td:nth-child(3)::before{content:"Program";}
+            #review-applications td:nth-child(4)::before{content:"Resume";}
+            #review-applications td:nth-child(5)::before{content:"Status";}
+            #review-applications td:nth-child(6)::before{content:"Review";}
             td form{ flex-direction:column; }
             td form select, td form input, td form button{ width:100%; }
         }
@@ -233,6 +250,7 @@
                 <tr>
                     <th>Program Title</th>
                     <th>Company</th>
+                    <th>Category</th>
                     <th>Skills Required</th>
                     <th>Slots Available</th>
                     <th>Deadline</th>
@@ -242,6 +260,7 @@
                 <tr th:each="program : ${programs}">
                     <td th:text="${program.title}">Title</td>
                     <td th:text="${program.company}">Company</td>
+                    <td th:text="${program.category}">Category</td>
                     <td th:text="${program.skillsRequired}">Skills</td>
                     <td>
                         <span class="badge-approved" th:text="${program.slotsAvailable} + ' slots'">Slots</span>
@@ -275,6 +294,19 @@
                     <input type="text" th:field="*{companyWebsite}" placeholder="e.g. safaricom.co.ke" />
                 </div>
                 <div class="form-group">
+                    <label>Category:</label>
+                    <select th:field="*{category}" required>
+                        <option value="">Select a category</option>
+                        <option value="Software Development">Software Development</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Design">Design</option>
+                        <option value="Data & Analytics">Data & Analytics</option>
+                        <option value="Operations">Operations</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>Skills Required (comma separated):</label>
                     <input type="text" th:field="*{skillsRequired}" placeholder="Java, Spring Boot, PostgreSQL" required />
                 </div>
@@ -294,52 +326,66 @@
         <div class="section tab-section" id="review-applications">
             <h3>Review Student Applications</h3>
 
-            <table th:if="${!#lists.isEmpty(applications)}">
-                <thead>
-                <tr>
-                    <th>Student</th>
-                    <th>Program</th>
-                    <th>Resume</th>
-                    <th>Status</th>
-                    <th>Action / Interview Message</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="app : ${applications}">
-                    <td>
-                        <div th:text="${app.applicantName}">Name</div>
-                        <div style="font-size:13px;color:#6b7280;">
-                            Age: <span th:text="${app.applicantAge}">--</span> &middot;
-                            <span th:text="${app.applicantPhone}">Phone</span>
-                        </div>
-                        <div style="font-size:12px;color:#9ca3af;" th:text="${app.student.email}">email</div>
-                        <div th:if="${app.coverLetter != null and !app.coverLetter.isEmpty()}" style="font-size:13px;color:#374151;margin-top:6px;font-style:italic;" th:text="${app.coverLetter}">Cover letter</div>
-                    </td>
-                    <td th:text="${app.internship.title}">Program</td>
-                    <td>
-                        <a th:if="${app.hasResume()}"
-                           th:href="@{'/api/applications/download/' + ${app.id}}"
-                           target="_blank"
-                           rel="noopener noreferrer">View Resume</a>
-                        <span th:if="${!app.hasResume()}" style="color: #9ca3af; font-size: 14px;">No File</span>
-                    </td>
-                    <td>
-                        <span th:text="${app.status}"
-                              th:class="${app.status == 'APPROVED' ? 'badge-approved' : (app.status == 'REJECTED' ? 'badge-rejected' : 'badge-pending')}">PENDING</span>
-                    </td>
-                    <td>
-                        <form th:action="@{'/recruiter/applications/' + ${app.id} + '/review'}" method="post" style="display: flex; gap: 5px;">
-                            <select name="status" style="width: 100px;">
-                                <option value="APPROVED">APPROVE</option>
-                                <option value="REJECTED">REJECT</option>
-                            </select>
-                            <input type="text" name="feedback" placeholder="Interview details or reason..." required style="flex-grow: 1;" />
-                            <button type="submit">Send</button>
-                        </form>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+            <form th:action="@{/recruiter/applications/bulk-review}" method="post" id="bulkForm">
+                <div class="bulk-bar">
+                    <label><input type="checkbox" onclick="document.querySelectorAll('.app-checkbox').forEach(cb => cb.checked = this.checked)" /> Select All</label>
+                    <select name="status">
+                        <option value="APPROVED">Approve Selected</option>
+                        <option value="REJECTED">Reject Selected</option>
+                    </select>
+                    <input type="text" name="feedback" placeholder="Optional bulk message..." />
+                    <button type="submit">Apply to Selected</button>
+                </div>
+
+                <table th:if="${!#lists.isEmpty(applications)}">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>Student</th>
+                        <th>Program</th>
+                        <th>Resume</th>
+                        <th>Status</th>
+                        <th>Action / Interview Message</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="app : ${applications}">
+                        <td><input type="checkbox" class="app-checkbox" name="applicationIds" th:value="${app.id}" form="bulkForm" /></td>
+                        <td>
+                            <div th:text="${app.applicantName}">Name</div>
+                            <div style="font-size:13px;color:#6b7280;">
+                                Age: <span th:text="${app.applicantAge}">--</span> &middot;
+                                <span th:text="${app.applicantPhone}">Phone</span>
+                            </div>
+                            <div style="font-size:12px;color:#9ca3af;" th:text="${app.student.email}">email</div>
+                            <div th:if="${app.coverLetter != null and !app.coverLetter.isEmpty()}" style="font-size:13px;color:#374151;margin-top:6px;font-style:italic;" th:text="${app.coverLetter}">Cover letter</div>
+                        </td>
+                        <td th:text="${app.internship.title}">Program</td>
+                        <td>
+                            <a th:if="${app.hasResume()}"
+                               th:href="@{'/api/applications/download/' + ${app.id}}"
+                               target="_blank"
+                               rel="noopener noreferrer">View Resume</a>
+                            <span th:if="${!app.hasResume()}" style="color: #9ca3af; font-size: 14px;">No File</span>
+                        </td>
+                        <td>
+                            <span th:text="${app.status}"
+                                  th:class="${app.status == 'APPROVED' ? 'badge-approved' : (app.status == 'REJECTED' ? 'badge-rejected' : 'badge-pending')}">PENDING</span>
+                        </td>
+                        <td>
+                            <form th:action="@{'/recruiter/applications/' + ${app.id} + '/review'}" method="post" style="display: flex; gap: 5px;">
+                                <select name="status" style="width: 100px;">
+                                    <option value="APPROVED">APPROVE</option>
+                                    <option value="REJECTED">REJECT</option>
+                                </select>
+                                <input type="text" name="feedback" placeholder="Interview details or reason..." required style="flex-grow: 1;" />
+                                <button type="submit">Send</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
 
             <div th:if="${#lists.isEmpty(applications)}" style="text-align: center; color: #6b7280; padding: 20px;">
                 No student applications received yet.

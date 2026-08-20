@@ -68,6 +68,29 @@ public class RecruiterController {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
 
+        processReview(application, status, feedback);
+
+        return "redirect:/recruiter/dashboard";
+    }
+
+    @PostMapping("/applications/bulk-review")
+    public String bulkReviewApplications(@RequestParam("applicationIds") List<Long> applicationIds,
+                                         @RequestParam("status") String status,
+                                         @RequestParam(value = "feedback", required = false) String feedback) {
+
+        String effectiveFeedback = (feedback == null || feedback.isBlank())
+                ? ("APPROVED".equalsIgnoreCase(status) ? "Your application has been approved." : "Your application was not successful this time.")
+                : feedback;
+
+        for (Long applicationId : applicationIds) {
+            applicationRepository.findById(applicationId).ifPresent(application ->
+                    processReview(application, status, effectiveFeedback));
+        }
+
+        return "redirect:/recruiter/dashboard";
+    }
+
+    private void processReview(Application application, String status, String feedback) {
         String previousStatus = application.getStatus();
 
         application.setStatus(status);
@@ -99,8 +122,6 @@ public class RecruiterController {
         } catch (Exception e) {
             System.err.println("SMS failed to dispatch: " + e.getMessage());
         }
-
-        return "redirect:/recruiter/dashboard";
     }
 
     private void adjustSlotsForStatusChange(Internship internship, String previousStatus, String newStatus) {
