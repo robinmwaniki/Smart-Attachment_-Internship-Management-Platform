@@ -188,6 +188,15 @@
             margin-bottom:0;
             white-space:nowrap;
         }
+        .alert-error{
+            background:#fee2e2;
+            color:#991b1b;
+            padding:12px 16px;
+            border-radius:10px;
+            margin-bottom:16px;
+            font-weight:600;
+            font-size:14px;
+        }
 
         @media(max-width:992px){
             body { flex-direction: column; overflow: auto; height: auto; }
@@ -326,6 +335,8 @@
         <div class="section tab-section" id="review-applications">
             <h3>Review Student Applications</h3>
 
+            <div class="alert-error" th:if="${error != null}" th:text="${error}"></div>
+
             <form th:action="@{/recruiter/applications/bulk-review}" method="post" id="bulkForm">
                 <div class="bulk-bar">
                     <label><input type="checkbox" onclick="document.querySelectorAll('.app-checkbox').forEach(cb => cb.checked = this.checked)" /> Select All</label>
@@ -350,7 +361,9 @@
                     </thead>
                     <tbody>
                     <tr th:each="app : ${applications}">
-                        <td><input type="checkbox" class="app-checkbox" name="applicationIds" th:value="${app.id}" form="bulkForm" /></td>
+                        <td>
+                            <input th:if="${app.status == 'PENDING'}" type="checkbox" class="app-checkbox" name="applicationIds" th:value="${app.id}" form="bulkForm" />
+                        </td>
                         <td>
                             <div th:text="${app.applicantName}">Name</div>
                             <div style="font-size:13px;color:#6b7280;">
@@ -373,7 +386,7 @@
                                   th:class="${app.status == 'APPROVED' ? 'badge-approved' : (app.status == 'REJECTED' ? 'badge-rejected' : 'badge-pending')}">PENDING</span>
                         </td>
                         <td>
-                            <form th:action="@{'/recruiter/applications/' + ${app.id} + '/review'}" method="post" style="display: flex; gap: 5px;">
+                            <form th:if="${app.status == 'PENDING'}" th:action="@{'/recruiter/applications/' + ${app.id} + '/review'}" method="post" style="display: flex; gap: 5px;">
                                 <select name="status" style="width: 100px;">
                                     <option value="APPROVED">APPROVE</option>
                                     <option value="REJECTED">REJECT</option>
@@ -381,6 +394,9 @@
                                 <input type="text" name="feedback" placeholder="Interview details or reason..." required style="flex-grow: 1;" />
                                 <button type="submit">Send</button>
                             </form>
+                            <span th:if="${app.status != 'PENDING'}" style="color:#9ca3af;font-size:13px;font-style:italic;">
+                                Decision final &mdash; cannot be changed
+                            </span>
                         </td>
                     </tr>
                     </tbody>

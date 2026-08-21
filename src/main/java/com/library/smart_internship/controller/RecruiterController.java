@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
@@ -63,10 +64,17 @@ public class RecruiterController {
     @PostMapping("/applications/{id}/review")
     public String reviewApplication(@PathVariable("id") Long applicationId,
                                     @RequestParam("status") String status,
-                                    @RequestParam("feedback") String feedback) {
+                                    @RequestParam("feedback") String feedback,
+                                    RedirectAttributes redirectAttributes) {
 
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        if (isFinalized(application.getStatus())) {
+            redirectAttributes.addFlashAttribute("error",
+                    "This application was already " + application.getStatus().toLowerCase() + " and cannot be changed.");
+            return "redirect:/recruiter/dashboard";
+        }
 
         processReview(application, status, feedback);
 
@@ -76,18 +84,36 @@ public class RecruiterController {
     @PostMapping("/applications/bulk-review")
     public String bulkReviewApplications(@RequestParam("applicationIds") List<Long> applicationIds,
                                          @RequestParam("status") String status,
-                                         @RequestParam(value = "feedback", required = false) String feedback) {
+                                         @RequestParam(value = "feedback", required = false) String feedback,
+                                         RedirectAttributes redirectAttributes) {
 
         String effectiveFeedback = (feedback == null || feedback.isBlank())
                 ? ("APPROVED".equalsIgnoreCase(status) ? "Your application has been approved." : "Your application was not successful this time.")
                 : feedback;
 
+        int skipped = 0;
         for (Long applicationId : applicationIds) {
-            applicationRepository.findById(applicationId).ifPresent(application ->
-                    processReview(application, status, effectiveFeedback));
+            Application application = applicationRepository.findById(applicationId).orElse(null);
+            if (application == null) {
+                continue;
+            }
+            if (isFinalized(application.getStatus())) {
+                skipped++;
+                continue;
+            }
+            processReview(application, status, effectiveFeedback);
+        }
+
+        if (skipped > 0) {
+            redirectAttributes.addFlashAttribute("error",
+                    skipped + " application(s) were skipped because they were already reviewed.");
         }
 
         return "redirect:/recruiter/dashboard";
+    }
+
+    private boolean isFinalized(String status) {
+        return "APPROVED".equalsIgnoreCase(status) || "REJECTED".equalsIgnoreCase(status);
     }
 
     private void processReview(Application application, String status, String feedback) {
