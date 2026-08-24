@@ -41,10 +41,15 @@ public class EmailService {
         message.setSubject("New Application Received: " + programTitle);
 
         String emailBody = String.format(
-                "Hello,\n\n" +
-                        "%s has just applied to your '%s' program.\n\n" +
-                        "Log in to your recruiter dashboard to review the application.\n\n" +
-                        "Best regards,\nSmart Internship Platform Team",
+                """
+                        Hello,
+                        
+                        %s has just applied to your '%s' program.
+                        
+                        Log in to your recruiter dashboard to review the application.
+                        
+                        Best regards,
+                        Smart Internship Platform Team""",
                 studentName, programTitle
         );
 
@@ -60,11 +65,18 @@ public class EmailService {
         message.setSubject("Reset Your Password - Smart Internship Platform");
 
         String emailBody = String.format(
-                "Hello,\n\n" +
-                        "We received a request to reset your password.\n\n" +
-                        "Click the link below to set a new password (valid for 30 minutes):\n%s\n\n" +
-                        "If you did not request this, you can safely ignore this email.\n\n" +
-                        "Best regards,\nSmart Internship Platform Team",
+                """
+                        Hello,
+                        
+                        We received a request to reset your password.
+                        
+                        Click the link below to set a new password (valid for 30 minutes):
+                        %s
+                        
+                        If you did not request this, you can safely ignore this email.
+                        
+                        Best regards,
+                        Smart Internship Platform Team""",
                 resetLink
         );
 
