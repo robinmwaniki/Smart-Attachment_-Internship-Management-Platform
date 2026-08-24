@@ -128,6 +128,32 @@ public class StudentController {
         return "redirect:/student/dashboard";
     }
 
+    @PostMapping("/applications/{id}/withdraw")
+    public String withdrawApplication(@PathVariable("id") Long applicationId,
+                                      Principal principal,
+                                      RedirectAttributes redirectAttributes) {
+        Student student = getStudent(principal);
+
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        if (!application.getStudent().getId().equals(student.getId())) {
+            redirectAttributes.addFlashAttribute("error", "You cannot withdraw this application.");
+            return "redirect:/student/dashboard";
+        }
+
+        if (!"PENDING".equalsIgnoreCase(application.getStatus())) {
+            redirectAttributes.addFlashAttribute("error", "Only pending applications can be withdrawn.");
+            return "redirect:/student/dashboard";
+        }
+
+        application.setStatus("WITHDRAWN");
+        applicationRepository.save(application);
+
+        redirectAttributes.addFlashAttribute("success", "Application withdrawn. You can reapply to this program if you change your mind.");
+        return "redirect:/student/dashboard";
+    }
+
     @GetMapping("/profile")
     public String viewProfile(Principal principal, Model model) {
         Student student = getStudent(principal);
