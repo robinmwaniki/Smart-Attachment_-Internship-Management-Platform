@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -39,6 +41,8 @@ public class Application {
 
     @Column(columnDefinition = "text")
     private String coverLetter;
+
+    private LocalDateTime interviewDateTime;
 
     public boolean hasResume() {
         return resumeData != null && resumeData.length > 0;

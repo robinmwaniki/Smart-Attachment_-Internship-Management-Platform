@@ -263,6 +263,7 @@
     .status-PENDING{ background:#fff3cd; color:#8a6d3b; }
     .status-APPROVED{ background:#d1fae5; color:#065f46; }
     .status-REJECTED{ background:#fee2e2; color:#991b1b; }
+    .status-WITHDRAWN{ background:#e5e7eb; color:#374151; }
     .empty-state,
     div[style*="No internship"],
     div[style*="not submitted"]{
@@ -406,6 +407,7 @@
         <th>Position Title</th>
         <th>Application Status</th>
         <th>Recruiter Feedback / Interview Details</th>
+        <th>Action</th>
       </tr>
       </thead>
       <tbody>
@@ -418,6 +420,14 @@
         <td>
           <span th:if="${app.feedback != null}" th:text="${app.feedback}" style="font-weight: 500;"></span>
           <span th:if="${app.feedback == null}" style="color: #999; font-style: italic;">Awaiting recruiter review...</span>
+          <div th:if="${app.interviewDateTime != null}" style="margin-top:6px;font-size:13px;color:#2563eb;font-weight:600;">
+            Interview: <span th:text="${#temporals.format(app.interviewDateTime, 'EEE, MMM d yyyy HH:mm')}">date</span>
+          </div>
+        </td>
+        <td>
+          <form th:if="${app.status == 'PENDING'}" th:action="@{'/student/applications/' + ${app.id} + '/withdraw'}" method="post" onsubmit="return confirm('Withdraw this application?');">
+            <button type="submit" style="background:#e63946;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;">Withdraw</button>
+          </form>
         </td>
       </tr>
       </tbody>
