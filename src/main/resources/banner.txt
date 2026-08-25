@@ -21,7 +21,7 @@
 Developer : Robin Mwaniki Munuve
 Framework : Spring Boot 3 • Spring Security • Thymeleaf • Spring Data JPA • MySQL
 Version   : 1.0.0
-Status    : RUNNING
+Status    : UP
 --------------------------------------------------------------------------------------------------------------
 
 ☕ It's only Wednesday... Keep coding!

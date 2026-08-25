@@ -32,7 +32,6 @@ public class ApplicationController {
         }
     }
 
-
     @GetMapping("/internship/{internshipId}")
     public ResponseEntity<List<Application>> getApplicationsByInternship(@PathVariable Long internshipId) {
         List<Application> applications = applicationService.getApplicationsForInternship(internshipId);
