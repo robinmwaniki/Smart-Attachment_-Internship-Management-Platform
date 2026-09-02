@@ -18,8 +18,8 @@
 🏢  Helping Organizations Discover Future Talent
 
 --------------------------------------------------------------------------------------------------------------
-Developer : Robin Mwaniki Munuve
-Framework : Spring Boot 3 • Spring Security • Thymeleaf • Spring Data JPA • MySQL
+Developer : Robin Mwaniki
+Framework : Spring Boot 3 • Spring Security •  Spring Data JPA • MySQL
 Version   : 1.0.0
 Status    : UP
 --------------------------------------------------------------------------------------------------------------

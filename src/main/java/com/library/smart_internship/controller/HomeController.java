@@ -25,10 +25,4 @@ public class HomeController {
     public String forgotPassword() {
         return "forgot-password";
     }
-
-    @GetMapping("/reset-password")
-    public String resetPassword() {
-        return "reset-password";
-    }
 }
-//f9q489
