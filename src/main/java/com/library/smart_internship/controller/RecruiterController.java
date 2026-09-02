@@ -15,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -68,6 +69,7 @@ public class RecruiterController {
     public String reviewApplication(@PathVariable("id") Long applicationId,
                                     @RequestParam("status") String status,
                                     @RequestParam("feedback") String feedback,
+                                    @RequestParam(value = "interviewDateTime", required = false) String interviewDateTime,
                                     RedirectAttributes redirectAttributes) {
 
         Application application = applicationRepository.findById(applicationId)
@@ -79,7 +81,7 @@ public class RecruiterController {
             return "redirect:/recruiter/dashboard";
         }
 
-        processReview(application, status, feedback);
+        processReview(application, status, feedback, parseInterviewDateTime(interviewDateTime));
 
         return "redirect:/recruiter/dashboard";
     }
@@ -104,7 +106,7 @@ public class RecruiterController {
                 skipped++;
                 continue;
             }
-            processReview(application, status, effectiveFeedback);
+            processReview(application, status, effectiveFeedback, null);
         }
 
         if (skipped > 0) {
@@ -119,11 +121,26 @@ public class RecruiterController {
         return "APPROVED".equalsIgnoreCase(status) || "REJECTED".equalsIgnoreCase(status);
     }
 
-    private void processReview(Application application, String status, String feedback) {
+    private LocalDateTime parseInterviewDateTime(String interviewDateTime) {
+        if (interviewDateTime == null || interviewDateTime.isBlank()) {
+            return null;
+        }
+        try {
+            return LocalDateTime.parse(interviewDateTime);
+        } catch (Exception e) {
+            System.err.println("Could not parse interview date/time: " + interviewDateTime);
+            return null;
+        }
+    }
+
+    private void processReview(Application application, String status, String feedback, LocalDateTime interviewDateTime) {
         String previousStatus = application.getStatus();
 
         application.setStatus(status);
         application.setFeedback(feedback);
+        if (interviewDateTime != null) {
+            application.setInterviewDateTime(interviewDateTime);
+        }
         applicationRepository.save(application);
 
         adjustSlotsForStatusChange(application.getInternship(), previousStatus, status);
