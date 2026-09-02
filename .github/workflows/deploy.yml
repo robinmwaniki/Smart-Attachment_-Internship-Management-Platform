@@ -18,6 +18,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Run unit tests
-        run: ./mvnw test -Dtest='!SmartAttachmentInternshipManagementPlatformApplicationTests' -DfailIfNoTests=false
+        run: |
+          chmod +x mvnw
+          ./mvnw test -Dtest='!SmartAttachmentInternshipManagementPlatformApplicationTests' -DfailIfNoTests=false
       - name: Build Docker image
         run: docker build -t smart-internship .
