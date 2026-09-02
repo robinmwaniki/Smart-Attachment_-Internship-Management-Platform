@@ -55,8 +55,8 @@ class RecruiterControllerInterviewDateTimeTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         Student student = new Student();
-        student.setName("Jane Doe");
-        student.setEmail("jane@example.com");
+        student.setName("Robin Mwaniki");
+        student.setEmail("robin@example.com");
         student.setPhone("0712345678");
 
         Internship internship = new Internship();

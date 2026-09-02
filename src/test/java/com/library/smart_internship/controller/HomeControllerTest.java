@@ -66,8 +66,8 @@ class HomeControllerTest {
         when(passwordEncoder.encode("secret123")).thenReturn("hashed-secret");
 
         mockMvc.perform(post("/register")
-                        .param("name", "Jane Doe")
-                        .param("email", "jane@example.com")
+                        .param("name", "Robin Mwaniki")
+                        .param("email", "robin@example.com")
                         .param("password", "secret123")
                         .param("role", "STUDENT")
                         .param("skills", "Java, SQL"))
@@ -78,7 +78,7 @@ class HomeControllerTest {
         verify(studentService).createStudent(captor.capture());
 
         Student saved = captor.getValue();
-        assertThat(saved.getEmail()).isEqualTo("jane@example.com");
+        assertThat(saved.getEmail()).isEqualTo("robin@example.com");
         assertThat(saved.getPassword()).isEqualTo("hashed-secret");
         assertThat(saved.getRole()).isEqualTo("STUDENT");
         assertThat(saved.getSkills()).isEqualTo("Java, SQL");
@@ -90,8 +90,8 @@ class HomeControllerTest {
         when(passwordEncoder.encode(anyString())).thenReturn("hashed");
 
         mockMvc.perform(post("/register")
-                        .param("name", "Acme Corp")
-                        .param("email", "hr@acme.com")
+                        .param("name", "Google Corp")
+                        .param("email", "hr@google.com")
                         .param("password", "secret123")
                         .param("role", "RECRUITER")
                         .param("skills", ""))
@@ -106,12 +106,12 @@ class HomeControllerTest {
     @Test
     void registerRejectsDuplicateEmailWithoutCreatingStudent() throws Exception {
         Student existing = new Student();
-        existing.setEmail("jane@example.com");
+        existing.setEmail("robin@example.com");
         when(studentRepository.findAll()).thenReturn(List.of(existing));
 
         mockMvc.perform(post("/register")
-                        .param("name", "Jane Doe")
-                        .param("email", "JANE@example.com")
+                        .param("name", "Robin Mwaniki")
+                        .param("email", "ROBIN@example.com")
                         .param("password", "secret123")
                         .param("role", "STUDENT"))
                 .andExpect(status().is3xxRedirection())
@@ -123,16 +123,16 @@ class HomeControllerTest {
     @Test
     void forgotPasswordCreatesTokenAndSendsEmailWhenStudentExists() throws Exception {
         Student student = new Student();
-        student.setEmail("jane@example.com");
+        student.setEmail("robin@example.com");
         when(studentRepository.findAll()).thenReturn(List.of(student));
 
-        mockMvc.perform(post("/forgot-password").param("email", "jane@example.com"))
+        mockMvc.perform(post("/forgot-password").param("email", "robin@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("forgot-password"))
                 .andExpect(model().attributeExists("message"));
 
         verify(passwordResetTokenRepository).save(any(PasswordResetToken.class));
-        verify(emailService).sendPasswordResetEmail(org.mockito.ArgumentMatchers.eq("jane@example.com"), anyString());
+        verify(emailService).sendPasswordResetEmail(org.mockito.ArgumentMatchers.eq("robin@example.com"), anyString());
     }
 
     @Test
