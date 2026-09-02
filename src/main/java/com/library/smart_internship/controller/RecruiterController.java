@@ -9,12 +9,12 @@ import com.library.smart_internship.repository.StudentRepository;
 import com.library.smart_internship.service.EmailService;
 import com.library.smart_internship.service.SmsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -28,13 +28,20 @@ public class RecruiterController {
     private final EmailService emailService;
     private final SmsService smsService;
 
-    @GetMapping("/dashboard")
-    public String recruiterDashboard(Principal principal, Model model) {
-        String email = principal.getName();
-        Student recruiter = studentRepository.findAll().stream()
+    /**
+     * Get recruiter from authentication
+     */
+    private Student getRecruiterFromAuth(Authentication authentication) {
+        String email = authentication.getName();
+        return studentRepository.findAll().stream()
                 .filter(s -> s.getEmail().equals(email))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Recruiter account not found"));
+    }
+
+    @GetMapping("/dashboard")
+    public String recruiterDashboard(Authentication authentication, Model model) {
+        Student recruiter = getRecruiterFromAuth(authentication);
 
         List<Internship> myPrograms = internshipRepository.findByRecruiterId(recruiter.getId());
 
@@ -49,12 +56,8 @@ public class RecruiterController {
     }
 
     @PostMapping("/internships/post")
-    public String createProgram(@ModelAttribute("newInternship") Internship internship, Principal principal) {
-        String email = principal.getName();
-        Student recruiter = studentRepository.findAll().stream()
-                .filter(s -> s.getEmail().equals(email))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Recruiter account not found"));
+    public String createProgram(@ModelAttribute("newInternship") Internship internship, Authentication authentication) {
+        Student recruiter = getRecruiterFromAuth(authentication);
 
         internship.setRecruiter(recruiter);
         internshipRepository.save(internship);
