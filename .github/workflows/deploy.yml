@@ -17,9 +17,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - name: Run unit tests
+      - name: Run tests
         run: |
           chmod +x mvnw
-          ./mvnw test -Dtest='!SmartAttachmentInternshipManagementPlatformApplicationTests' -DfailIfNoTests=false
+          ./mvnw verify
       - name: Build Docker image
         run: docker build -t smart-internship .
