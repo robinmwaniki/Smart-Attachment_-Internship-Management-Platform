@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.servlet.View;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,7 +58,10 @@ class HomeControllerTest {
     void setUp() {
         HomeController controller = new HomeController(
                 studentRepository, studentService, passwordResetTokenRepository, emailService, passwordEncoder);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        View noOpView = (model, request, response) -> {};
+        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .setViewResolvers((viewName, locale) -> noOpView)
+                .build();
     }
 
     @Test
@@ -66,8 +70,8 @@ class HomeControllerTest {
         when(passwordEncoder.encode("secret123")).thenReturn("hashed-secret");
 
         mockMvc.perform(post("/register")
-                        .param("name", "Robin Mwaniki")
-                        .param("email", "robin@example.com")
+                        .param("name", "Jane Doe")
+                        .param("email", "jane@example.com")
                         .param("password", "secret123")
                         .param("role", "STUDENT")
                         .param("skills", "Java, SQL"))
@@ -78,7 +82,7 @@ class HomeControllerTest {
         verify(studentService).createStudent(captor.capture());
 
         Student saved = captor.getValue();
-        assertThat(saved.getEmail()).isEqualTo("robin@example.com");
+        assertThat(saved.getEmail()).isEqualTo("jane@example.com");
         assertThat(saved.getPassword()).isEqualTo("hashed-secret");
         assertThat(saved.getRole()).isEqualTo("STUDENT");
         assertThat(saved.getSkills()).isEqualTo("Java, SQL");
@@ -90,8 +94,8 @@ class HomeControllerTest {
         when(passwordEncoder.encode(anyString())).thenReturn("hashed");
 
         mockMvc.perform(post("/register")
-                        .param("name", "Google Corp")
-                        .param("email", "hr@google.com")
+                        .param("name", "Acme Corp")
+                        .param("email", "hr@acme.com")
                         .param("password", "secret123")
                         .param("role", "RECRUITER")
                         .param("skills", ""))
@@ -106,12 +110,12 @@ class HomeControllerTest {
     @Test
     void registerRejectsDuplicateEmailWithoutCreatingStudent() throws Exception {
         Student existing = new Student();
-        existing.setEmail("robin@example.com");
+        existing.setEmail("jane@example.com");
         when(studentRepository.findAll()).thenReturn(List.of(existing));
 
         mockMvc.perform(post("/register")
-                        .param("name", "Robin Mwaniki")
-                        .param("email", "ROBIN@example.com")
+                        .param("name", "Jane Doe")
+                        .param("email", "JANE@example.com")
                         .param("password", "secret123")
                         .param("role", "STUDENT"))
                 .andExpect(status().is3xxRedirection())
@@ -123,16 +127,16 @@ class HomeControllerTest {
     @Test
     void forgotPasswordCreatesTokenAndSendsEmailWhenStudentExists() throws Exception {
         Student student = new Student();
-        student.setEmail("robin@example.com");
+        student.setEmail("jane@example.com");
         when(studentRepository.findAll()).thenReturn(List.of(student));
 
-        mockMvc.perform(post("/forgot-password").param("email", "robin@example.com"))
+        mockMvc.perform(post("/forgot-password").param("email", "jane@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("forgot-password"))
                 .andExpect(model().attributeExists("message"));
 
         verify(passwordResetTokenRepository).save(any(PasswordResetToken.class));
-        verify(emailService).sendPasswordResetEmail(org.mockito.ArgumentMatchers.eq("robin@example.com"), anyString());
+        verify(emailService).sendPasswordResetEmail(org.mockito.ArgumentMatchers.eq("jane@example.com"), anyString());
     }
 
     @Test
