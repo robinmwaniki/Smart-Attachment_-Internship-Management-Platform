@@ -23,7 +23,8 @@ A Spring Boot web application designed to digitize student attachment and intern
 - Spring Security
 - Spring Data JPA / Hibernate
 - PostgreSQL 17
-- JWT (JJWT)
+- Keycloak OIDC identity provider (migration in progress)
+- Spring Security OAuth2 Resource Server
 - Spring Mail
 - Spring Retry
 - Springdoc OpenAPI
@@ -35,7 +36,7 @@ A Spring Boot web application designed to digitize student attachment and intern
 
 The application uses a layered Spring Boot structure. Controllers handle web requests, services implement application workflows, repositories access persisted data, and PostgreSQL stores application records. Thymeleaf provides the server-rendered user interface.
 
-Docker Compose defines the application, PostgreSQL database, and Zipkin tracing service. Uploaded documents are stored in a named Docker volume.
+Docker Compose defines the Spring Boot application, its PostgreSQL database, a separate PostgreSQL database for Keycloak, Keycloak, and Zipkin. Uploaded documents and Keycloak database data are stored in named Docker volumes. Thymeleaf/session authentication remains during this staged migration.
 
 ## Prerequisites
 
@@ -50,13 +51,14 @@ Docker Compose defines the application, PostgreSQL database, and Zipkin tracing 
    git clone https://github.com/robinmwaniki/Smart-Attachment_-Internship-Management-Platform.git
    cd Smart-Attachment_-Internship-Management-Platform
    ```
-2. Create a local `.env` file based on the variables referenced in `docker-compose.yml`. Configure PostgreSQL, Spring datasource, mail, and optional Africa's Talking settings. Keep credentials and API keys private.
+2. Copy `.env.example` to `.env` and replace all placeholder credentials. Keep `.env` private.
 3. Start the stack:
    ```bash
    docker compose up --build -d
    ```
 4. Open the application at http://localhost:8080.
-5. Zipkin is available at http://localhost:9411.
+5. Open Keycloak at http://localhost:8180 and sign in with the local bootstrap administrator credentials from `.env`.
+6. Zipkin is available at http://localhost:9411.
 
 Stop the stack:
 ```bash
@@ -88,7 +90,11 @@ Springdoc OpenAPI is included for API documentation. Spring Boot Actuator is inc
 
 - PostgreSQL is exposed on host port `5433` and listens on container port `5432`.
 - The application is exposed on port `8080`.
+- Keycloak is exposed on port `8180`; its dedicated PostgreSQL database is internal to the Compose network.
 - Zipkin is exposed on port `9411`.
+- The imported realm is `smart-attachment`; the public SPA client is `smart-attachment-frontend`, configured for Authorization Code Flow with PKCE S256 and no client secret.
+- Realm roles are `STUDENT`, `COMPANY`, `SUPERVISOR`, and `ADMIN`. Assign roles to development users in the Keycloak administration console.
+- The expected token issuer is `http://localhost:8180/realms/smart-attachment`; the API container retrieves signing keys using the internal Keycloak service address.
 - Do not commit `.env`, database passwords, mail credentials, JWT signing secrets, or messaging-provider API keys.
 - Verify the configured upload volume and access controls before using real CVs or student records.
 

@@ -1,0 +1,45 @@
+{
+  "realm": "smart-attachment",
+  "enabled": true,
+  "displayName": "Smart Attachment",
+  "roles": {
+    "realm": [
+      { "name": "STUDENT", "description": "Student account" },
+      { "name": "COMPANY", "description": "Company/recruiter account" },
+      { "name": "SUPERVISOR", "description": "Attachment supervisor account" },
+      { "name": "ADMIN", "description": "Platform administrator account" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "smart-attachment-frontend",
+      "name": "Smart Attachment React Frontend",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:5173"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:5173/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "smart-attachment-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "smart-attachment-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ]
+}
