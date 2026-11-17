@@ -1,11 +1,13 @@
 package com.library.smart_internship.config;
 
-import com.library.smart_internship.filter.JwtAuthenticationFilter;
 import com.library.smart_internship.repository.StudentRepository;
+import com.library.smart_internship.security.RealmRoleConverter;
 import com.library.smart_internship.service.LoginAttemptService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -15,10 +17,21 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +40,16 @@ public class SecurityConfig {
 
     private final StudentRepository studentRepository;
     private final LoginAttemptService loginAttemptService;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RealmRoleConverter realmRoleConverter;
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuerUri;
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+    private String jwkSetUri;
+
+    @Value("${keycloak.api-audience:smart-attachment-api}")
+    private String apiAudience;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -43,7 +65,7 @@ public class SecurityConfig {
             }
 
             var student = studentRepository.findAll().stream()
-                    .filter(s -> s.getEmail().equals(email))
+                    .filter(s -> s.getEmail().equalsIgnoreCase(email))
                     .findFirst()
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
@@ -68,17 +90,43 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(realmRoleConverter);
+        return converter;
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+        OAuth2TokenValidator<Jwt> issuerValidator = JwtValidators.createDefaultWithIssuer(issuerUri);
+        OAuth2TokenValidator<Jwt> audienceValidator = jwt -> jwt.getAudience().contains(apiAudience)
+                ? OAuth2TokenValidatorResult.success()
+                : OAuth2TokenValidatorResult.failure(
+                        new OAuth2Error("invalid_token", "Required API audience is missing.", null));
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(issuerValidator, audienceValidator));
+        return decoder;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                    JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
+        AuthenticationEntryPoint apiEntryPoint = new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
+
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .exceptionHandling(exceptions -> exceptions
+                        .defaultAuthenticationEntryPointFor(apiEntryPoint, new AntPathRequestMatcher("/api/**")))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/register", "/login", "/forgot-password", "/reset-password", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/", "/register", "/login", "/forgot-password", "/reset-password",
+                                "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/api/account/link").authenticated()
+                        // Existing REST controllers are deliberately closed until their ownership checks
+                        // are migrated from caller-supplied IDs to the authenticated Keycloak subject.
+                        .requestMatchers("/api/**").denyAll()
                         .requestMatchers("/recruiter/**").hasRole("RECRUITER")
-                        .requestMatchers("/api/recruiter/**").hasRole("RECRUITER")
                         .requestMatchers("/dashboard", "/student/**").hasRole("STUDENT")
-                        .requestMatchers("/api/student/**").hasRole("STUDENT")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -89,11 +137,7 @@ public class SecurityConfig {
                             boolean isRecruiter = authentication.getAuthorities().stream()
                                     .anyMatch(a -> a.getAuthority().equals("ROLE_RECRUITER"));
 
-                            if (isRecruiter) {
-                                response.sendRedirect("/recruiter/dashboard");
-                            } else {
-                                response.sendRedirect("/student/dashboard");
-                            }
+                            response.sendRedirect(isRecruiter ? "/recruiter/dashboard" : "/student/dashboard");
                         })
                         .failureHandler((request, response, exception) -> {
                             String username = request.getParameter("username");
@@ -101,19 +145,14 @@ public class SecurityConfig {
                                 loginAttemptService.loginFailed(username);
                             }
 
-                            if (loginAttemptService.isLocked(username)) {
-                                response.sendRedirect("/login?locked");
-                            } else {
-                                response.sendRedirect("/login?error");
-                            }
+                            response.sendRedirect(loginAttemptService.isLocked(username)
+                                    ? "/login?locked" : "/login?error");
                         })
                         .permitAll()
                 )
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll()
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .logout(logout -> logout.logoutSuccessUrl("/login?logout").permitAll())
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)));
 
         return http.build();
     }
