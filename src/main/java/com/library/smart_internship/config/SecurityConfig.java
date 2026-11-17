@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -121,8 +122,12 @@ public class SecurityConfig {
                         .requestMatchers("/", "/register", "/login", "/forgot-password", "/reset-password",
                                 "/css/**", "/js/**").permitAll()
                         .requestMatchers("/api/account/link").authenticated()
-                        // Existing REST controllers are deliberately closed until their ownership checks
-                        // are migrated from caller-supplied IDs to the authenticated Keycloak subject.
+                        .requestMatchers(HttpMethod.POST, "/api/applications").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.GET, "/api/applications/internship/**").hasRole("COMPANY")
+                        .requestMatchers(HttpMethod.PUT, "/api/applications/*/status").hasRole("COMPANY")
+                        .requestMatchers(HttpMethod.GET, "/api/applications/download/**")
+                            .hasAnyRole("STUDENT", "COMPANY")
+                        // Other API routes stay closed until their ownership checks are migrated.
                         .requestMatchers("/api/**").denyAll()
                         .requestMatchers("/recruiter/**").hasRole("RECRUITER")
                         .requestMatchers("/dashboard", "/student/**").hasRole("STUDENT")
