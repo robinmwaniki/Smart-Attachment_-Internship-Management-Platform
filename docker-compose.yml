@@ -87,6 +87,7 @@ services:
       AFRICASTALKING_USERNAME: ${AFRICASTALKING_USERNAME}
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
       KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/smart-attachment/protocol/openid-connect/certs
+      KEYCLOAK_API_AUDIENCE: ${KEYCLOAK_API_AUDIENCE:-smart-attachment-api}
     depends_on:
       db:
         condition: service_healthy
