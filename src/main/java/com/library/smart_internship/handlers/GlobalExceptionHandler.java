@@ -30,6 +30,13 @@ public class GlobalExceptionHandler {
                 .body(Map.of("message", ex.getMessage()));
     }
 
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public ResponseEntity<Map<String, String>> handleResponseStatusException(
+            org.springframework.web.server.ResponseStatusException ex) {
+        return ResponseEntity.status(ex.getStatusCode())
+                .body(Map.of("message", ex.getReason() == null ? "Request could not be completed." : ex.getReason()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGeneralExceptions(Exception ex) {
 
