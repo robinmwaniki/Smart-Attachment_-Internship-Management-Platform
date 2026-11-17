@@ -23,6 +23,13 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(com.library.smart_internship.service.AccountLinkService.AccountLinkException.class)
+    public ResponseEntity<Map<String, String>> handleAccountLinkException(
+            com.library.smart_internship.service.AccountLinkService.AccountLinkException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGeneralExceptions(Exception ex) {
 
