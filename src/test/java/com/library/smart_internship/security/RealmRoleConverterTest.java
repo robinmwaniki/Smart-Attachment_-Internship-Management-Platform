@@ -20,7 +20,7 @@ class RealmRoleConverterTest {
                 .header("alg", "RS256")
                 .subject("user-123")
                 .claim("realm_access", Map.of("roles",
-                        List.of("STUDENT", "COMPANY", "offline_access", "uma_authorization")))
+                        List.of("STUDENT", "COMPANY", "SUPERVISOR", "ADMIN", "offline_access", "uma_authorization")))
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(300))
                 .build();
@@ -30,7 +30,7 @@ class RealmRoleConverterTest {
                 .sorted()
                 .toList();
 
-        assertEquals(List.of("ROLE_COMPANY", "ROLE_STUDENT"), authorities);
+        assertEquals(List.of("ROLE_ADMIN", "ROLE_COMPANY", "ROLE_STUDENT", "ROLE_SUPERVISOR"), authorities);
     }
 
     @Test
