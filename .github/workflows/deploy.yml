@@ -21,5 +21,7 @@ jobs:
         run: |
           chmod +x mvnw
           ./mvnw verify
-      - name: Build Docker image
+      - name: Build Spring Boot Docker image
         run: docker build -t smart-internship .
+      - name: Build Render Keycloak Docker image
+        run: docker build -f Dockerfile.render-keycloak -t smart-attachment-keycloak .
