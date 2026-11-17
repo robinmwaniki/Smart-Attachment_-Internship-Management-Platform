@@ -100,7 +100,13 @@ Springdoc OpenAPI is included for API documentation. Spring Boot Actuator is inc
 - Existing student/recruiter profiles are not rewritten. Their nullable, unique `keycloak_subject` column is populated only through `POST /api/account/link`, using a Keycloak access token with a verified email, the matching existing account password, and a matching realm role. Legacy `RECRUITER` profiles map to Keycloak `COMPANY` without changing the stored role.
 - Other `/api/**` routes are temporarily denied until their ownership checks use the authenticated Keycloak subject. This is intentional: the previous application endpoints trusted caller-supplied profile IDs and must not be exposed during the frontend migration.
 - Do not commit `.env`, database passwords, mail credentials, access tokens, or messaging-provider API keys.
-- Verify the configured upload volume and access controls before using real CVs or student records.
+- Resume bytes are stored in PostgreSQL; database capacity and backups therefore include uploaded CV data.
+
+## Render Free deployment
+
+For the separate React frontend, Spring Boot API and Keycloak deployment topology, environment variables, PostgreSQL schema setup, Free-plan limitations and verification checklist, see [docs/RENDER_FREE_DEPLOYMENT.md](docs/RENDER_FREE_DEPLOYMENT.md).
+
+This is a temporary integration-test deployment only. Render Free services are not suitable for production student records.
 
 ## Build and test
 
