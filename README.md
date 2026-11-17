@@ -95,7 +95,11 @@ Springdoc OpenAPI is included for API documentation. Spring Boot Actuator is inc
 - The imported realm is `smart-attachment`; the public SPA client is `smart-attachment-frontend`, configured for Authorization Code Flow with PKCE S256 and no client secret.
 - Realm roles are `STUDENT`, `COMPANY`, `SUPERVISOR`, and `ADMIN`. Assign roles to development users in the Keycloak administration console.
 - The expected token issuer is `http://localhost:8180/realms/smart-attachment`; the API container retrieves signing keys using the internal Keycloak service address.
-- Do not commit `.env`, database passwords, mail credentials, JWT signing secrets, or messaging-provider API keys.
+- Access tokens must include the `smart-attachment-api` audience. Spring validates the token signature, issuer, expiry, and audience, then maps only the supported realm roles to Spring authorities.
+- Existing Thymeleaf pages continue to use the legacy session login during migration. The custom application-issued JWT endpoint and filter have been removed.
+- Existing student/recruiter profiles are not rewritten. Their nullable, unique `keycloak_subject` column is populated only through `POST /api/account/link`, using a Keycloak access token with a verified email, the matching existing account password, and a matching realm role. Legacy `RECRUITER` profiles map to Keycloak `COMPANY` without changing the stored role.
+- Other `/api/**` routes are temporarily denied until their ownership checks use the authenticated Keycloak subject. This is intentional: the previous application endpoints trusted caller-supplied profile IDs and must not be exposed during the frontend migration.
+- Do not commit `.env`, database passwords, mail credentials, access tokens, or messaging-provider API keys.
 - Verify the configured upload volume and access controls before using real CVs or student records.
 
 ## Build and test
