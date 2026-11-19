@@ -38,6 +38,7 @@ import static org.mockito.Mockito.verify;
         "spring.mail.properties.mail.smtp.auth=false",
         "spring.mail.properties.mail.smtp.starttls.enable=false",
         "management.tracing.sampling.probability=0.0",
+        "management.health.mail.enabled=false",
         "spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8180/realms/smart-attachment",
         "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost:8180/realms/smart-attachment/protocol/openid-connect/certs",
         "africastalking.api-key=test-api-key",
