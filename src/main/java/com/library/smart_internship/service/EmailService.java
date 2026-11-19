@@ -3,17 +3,23 @@ package com.library.smart_internship.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.stereotype.Service;
 
+/**
+ * SMTP calls are guarded by a circuit breaker and bounded semaphore. Sending an
+ * email is not idempotent, so an ambiguous timeout must not trigger an automatic
+ * retry that could deliver the same notification more than once.
+ */
 @Service
 @RequiredArgsConstructor
 public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 2000, multiplier = 2))
+    @CircuitBreaker(name = "emailGateway")
+    @Bulkhead(name = "emailGateway")
     public void sendStatusUpdateEmail(String toEmail, String studentName, String programTitle, String status, String feedback) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("noreply@smartinternship.com");
@@ -33,7 +39,8 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 2000, multiplier = 2))
+    @CircuitBreaker(name = "emailGateway")
+    @Bulkhead(name = "emailGateway")
     public void sendNewApplicationEmail(String recruiterEmail, String studentName, String programTitle) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("noreply@smartinternship.com");
@@ -57,7 +64,8 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 2000, multiplier = 2))
+    @CircuitBreaker(name = "emailGateway")
+    @Bulkhead(name = "emailGateway")
     public void sendPasswordResetEmail(String toEmail, String resetLink) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("noreply@smartinternship.com");

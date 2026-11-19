@@ -2,6 +2,10 @@ package com.library.smart_internship.handlers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
+import org.springframework.web.client.ResourceAccessException;
+import io.github.resilience4j.bulkhead.BulkheadFullException;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -35,6 +39,18 @@ public class GlobalExceptionHandler {
             org.springframework.web.server.ResponseStatusException ex) {
         return ResponseEntity.status(ex.getStatusCode())
                 .body(Map.of("message", ex.getReason() == null ? "Request could not be completed." : ex.getReason()));
+    }
+
+    @ExceptionHandler({
+            CallNotPermittedException.class,
+            BulkheadFullException.class,
+            ResourceAccessException.class,
+            MailException.class
+    })
+    public ResponseEntity<Map<String, String>> handleOutboundDependencyUnavailable(Exception ex) {
+        // Do not return provider details, request data or credentials to API callers.
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Map.of("message", "A notification provider is temporarily unavailable. Please try again later."));
     }
 
     @ExceptionHandler(Exception.class)
