@@ -408,4 +408,50 @@ class ApplicationServiceTest {
                 .isInstanceOf(org.springframework.web.server.ResponseStatusException.class);
     }
 
+
+
+    @Test
+    void studentCanListOnlyApplicationsResolvedFromTheirOwnKeycloakSubject() {
+        Student student = new Student();
+        student.setId(41L);
+        student.setName("Current Student");
+        student.setRole("STUDENT");
+        student.setKeycloakSubject("student-current");
+
+        Internship internship = new Internship();
+        internship.setId(42L);
+        internship.setTitle("Software Intern");
+
+        Application application = new Application();
+        application.setId(43L);
+        application.setStudent(student);
+        application.setInternship(internship);
+        application.setStatus("PENDING");
+
+        when(studentRepository.findByKeycloakSubject("student-current")).thenReturn(Optional.of(student));
+        when(applicationRepository.findByStudentId(41L)).thenReturn(List.of(application));
+
+        var responses = applicationService.getApplicationsForStudent("student-current");
+
+        assertThat(responses).hasSize(1);
+        assertThat(responses.getFirst().id()).isEqualTo(43L);
+        assertThat(responses.getFirst().applicantName()).isEqualTo("Current Student");
+        verify(applicationRepository).findByStudentId(41L);
+    }
+
+    @Test
+    void companyCannotUseStudentOwnApplicationsService() {
+        Student company = new Student();
+        company.setId(51L);
+        company.setRole("COMPANY");
+        company.setKeycloakSubject("company-sub");
+
+        when(studentRepository.findByKeycloakSubject("company-sub")).thenReturn(Optional.of(company));
+
+        assertThatThrownBy(() -> applicationService.getApplicationsForStudent("company-sub"))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class);
+
+        verify(applicationRepository, org.mockito.Mockito.never()).findByStudentId(any());
+    }
+
 }
