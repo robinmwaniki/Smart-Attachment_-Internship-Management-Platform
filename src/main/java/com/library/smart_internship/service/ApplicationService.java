@@ -74,6 +74,22 @@ public class ApplicationService {
         return applicationRepository.save(application);
     }
 
+    /**
+     * Returns only the applications associated with the Keycloak-linked student.
+     * The caller's subject, never a client-supplied student ID, determines scope.
+     */
+    @Transactional(readOnly = true)
+    public List<ApplicationResponse> getApplicationsForStudent(String keycloakSubject) {
+        Student student = requireLinkedStudent(keycloakSubject);
+        if (!"STUDENT".equalsIgnoreCase(student.getRole())) {
+            throw notFound();
+        }
+
+        return applicationRepository.findByStudentId(student.getId()).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     @Transactional
     public ApplicationResponse submitForAuthenticatedStudent(
             String keycloakSubject, Long internshipId, MultipartFile file) throws IOException {
