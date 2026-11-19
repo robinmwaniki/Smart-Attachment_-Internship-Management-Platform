@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -18,6 +18,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -27,11 +29,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
@@ -108,28 +107,56 @@ public class SecurityConfig {
         return decoder;
     }
 
+    /**
+     * API routes form an isolated, stateless security boundary. A browser session
+     * created by the legacy Thymeleaf login must never authenticate an API call.
+     */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                    JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
-        AuthenticationEntryPoint apiEntryPoint = new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
+    @Order(1)
+    public SecurityFilterChain apiSecurityFilterChain(
+            HttpSecurity http,
+            JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
 
+        http
+                .securityMatcher("/api/**")
+                .csrf(csrf -> csrf.disable())
+                .requestCache(cache -> cache.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/account/link").authenticated()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/applications/mine")
+                            .hasRole("STUDENT")
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/applications")
+                            .hasRole("STUDENT")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/applications/internship/**")
+                            .hasRole("COMPANY")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/applications/*/status")
+                            .hasRole("COMPANY")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/applications/download/**")
+                            .hasAnyRole("STUDENT", "COMPANY")
+                        .anyRequest().denyAll())
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
+
+        return http.build();
+    }
+
+    /**
+     * The existing Thymeleaf application continues to use form login and an
+     * HTTP session. This chain intentionally does not enable bearer-token auth.
+     */
+    @Bean
+    @Order(2)
+    public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .exceptionHandling(exceptions -> exceptions
-                        .defaultAuthenticationEntryPointFor(apiEntryPoint, request -> request.getRequestURI().startsWith("/api/")))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/register", "/login", "/forgot-password", "/reset-password",
                                 "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/api/account/link").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/applications/mine").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.POST, "/api/applications").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.GET, "/api/applications/internship/**").hasRole("COMPANY")
-                        .requestMatchers(HttpMethod.PUT, "/api/applications/*/status").hasRole("COMPANY")
-                        .requestMatchers(HttpMethod.GET, "/api/applications/download/**")
-                            .hasAnyRole("STUDENT", "COMPANY")
-                        // Other API routes stay closed until their ownership checks are migrated.
-                        .requestMatchers("/api/**").denyAll()
                         .requestMatchers("/recruiter/**").hasRole("RECRUITER")
                         .requestMatchers("/dashboard", "/student/**").hasRole("STUDENT")
                         .anyRequest().authenticated()
@@ -155,9 +182,7 @@ public class SecurityConfig {
                         })
                         .permitAll()
                 )
-                .logout(logout -> logout.logoutSuccessUrl("/login?logout").permitAll())
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)));
+                .logout(logout -> logout.logoutSuccessUrl("/login?logout").permitAll());
 
         return http.build();
     }
