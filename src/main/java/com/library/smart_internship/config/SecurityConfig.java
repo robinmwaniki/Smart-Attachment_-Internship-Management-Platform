@@ -122,6 +122,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/register", "/login", "/forgot-password", "/reset-password",
                                 "/css/**", "/js/**").permitAll()
                         .requestMatchers("/api/account/link").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/applications/mine").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.POST, "/api/applications").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.GET, "/api/applications/internship/**").hasRole("COMPANY")
                         .requestMatchers(HttpMethod.PUT, "/api/applications/*/status").hasRole("COMPANY")
