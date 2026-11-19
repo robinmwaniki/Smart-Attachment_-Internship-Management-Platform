@@ -11,6 +11,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
+import org.springframework.mail.MailSendException;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -51,15 +54,22 @@ class OutboundResilienceIT {
     private SmsService smsService;
 
     @Autowired
+    private EmailService emailService;
+
+    @Autowired
     private CircuitBreakerRegistry circuitBreakerRegistry;
 
     @MockitoBean(name = "smsRestTemplate")
     private RestTemplate restTemplate;
 
+    @MockitoBean
+    private JavaMailSender mailSender;
+
     @BeforeEach
     void resetCircuitAndMock() {
         circuitBreakerRegistry.circuitBreaker("smsGateway").reset();
-        reset(restTemplate);
+        circuitBreakerRegistry.circuitBreaker("emailGateway").reset();
+        reset(restTemplate, mailSender);
     }
 
     @Test
@@ -84,4 +94,27 @@ class OutboundResilienceIT {
         verify(restTemplate, times(3))
                 .postForEntity(anyString(), any(HttpEntity.class), eq(String.class));
     }
+
+    @Test
+    void opensEmailCircuitWithoutRetryingNonIdempotentMessages() {
+        doThrow(new MailSendException("simulated SMTP timeout"))
+                .when(mailSender)
+                .send(any(SimpleMailMessage.class));
+
+        for (int attempt = 0; attempt < 3; attempt++) {
+            assertThatThrownBy(() -> emailService.sendPasswordResetEmail(
+                    "student@example.test", "https://example.test/reset"))
+                    .isInstanceOf(MailSendException.class);
+        }
+
+        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("emailGateway");
+        assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
+
+        assertThatThrownBy(() -> emailService.sendPasswordResetEmail(
+                "student@example.test", "https://example.test/reset"))
+                .isInstanceOf(CallNotPermittedException.class);
+
+        verify(mailSender, times(3)).send(any(SimpleMailMessage.class));
+    }
+
 }
