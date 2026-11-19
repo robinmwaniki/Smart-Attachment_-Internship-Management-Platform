@@ -292,4 +292,120 @@ class ApplicationServiceTest {
         assertThat(resume.filename()).isEqualTo("cv.pdf");
     }
 
+
+
+    @Test
+    void recruiterCanUpdateStatusOnlyForOwnedApplication() {
+        Student recruiter = new Student();
+        recruiter.setId(21L);
+        recruiter.setRole("COMPANY");
+        recruiter.setKeycloakSubject("company-sub");
+
+        Internship internship = new Internship();
+        internship.setId(22L);
+        internship.setRecruiter(recruiter);
+
+        Application application = new Application();
+        application.setId(23L);
+        application.setInternship(internship);
+        application.setStatus("PENDING");
+
+        when(studentRepository.findByKeycloakSubject("company-sub")).thenReturn(Optional.of(recruiter));
+        when(applicationRepository.findById(23L)).thenReturn(Optional.of(application));
+        when(applicationRepository.save(any(Application.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        var response = applicationService.updateStatusForRecruiter("company-sub", 23L, "approved");
+
+        assertThat(response.status()).isEqualTo("APPROVED");
+        verify(applicationRepository).save(application);
+    }
+
+    @Test
+    void recruiterCannotUpdateStatusForAnotherCompanyApplication() {
+        Student caller = new Student();
+        caller.setId(21L);
+        caller.setRole("COMPANY");
+        caller.setKeycloakSubject("company-a");
+
+        Student owner = new Student();
+        owner.setId(24L);
+        owner.setRole("COMPANY");
+
+        Internship internship = new Internship();
+        internship.setId(22L);
+        internship.setRecruiter(owner);
+
+        Application application = new Application();
+        application.setId(23L);
+        application.setInternship(internship);
+
+        when(studentRepository.findByKeycloakSubject("company-a")).thenReturn(Optional.of(caller));
+        when(applicationRepository.findById(23L)).thenReturn(Optional.of(application));
+
+        assertThatThrownBy(() -> applicationService.updateStatusForRecruiter("company-a", 23L, "REJECTED"))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class);
+
+        verify(applicationRepository, org.mockito.Mockito.never()).save(any());
+    }
+
+    @Test
+    void companyCanDownloadResumeForOwnedInternship() {
+        Student company = new Student();
+        company.setId(31L);
+        company.setRole("COMPANY");
+        company.setKeycloakSubject("company-sub");
+
+        Student applicant = new Student();
+        applicant.setId(32L);
+
+        Internship internship = new Internship();
+        internship.setId(33L);
+        internship.setRecruiter(company);
+
+        Application application = new Application();
+        application.setId(34L);
+        application.setStudent(applicant);
+        application.setInternship(internship);
+        application.setResumeData("applicant cv".getBytes());
+        application.setResumeFilename("applicant.pdf");
+        application.setResumeContentType("application/pdf");
+
+        when(studentRepository.findByKeycloakSubject("company-sub")).thenReturn(Optional.of(company));
+        when(applicationRepository.findById(34L)).thenReturn(Optional.of(application));
+
+        var resume = applicationService.downloadResumeForPrincipal("company-sub", 34L);
+
+        assertThat(new String(resume.data())).isEqualTo("applicant cv");
+        assertThat(resume.filename()).isEqualTo("applicant.pdf");
+    }
+
+    @Test
+    void companyCannotDownloadResumeForAnotherCompanyInternship() {
+        Student caller = new Student();
+        caller.setId(31L);
+        caller.setRole("COMPANY");
+        caller.setKeycloakSubject("company-a");
+
+        Student owner = new Student();
+        owner.setId(35L);
+        owner.setRole("COMPANY");
+
+        Internship internship = new Internship();
+        internship.setId(33L);
+        internship.setRecruiter(owner);
+
+        Application application = new Application();
+        application.setId(34L);
+        application.setStudent(new Student());
+        application.setInternship(internship);
+        application.setResumeData("private cv".getBytes());
+
+        when(studentRepository.findByKeycloakSubject("company-a")).thenReturn(Optional.of(caller));
+        when(applicationRepository.findById(34L)).thenReturn(Optional.of(application));
+
+        assertThatThrownBy(() -> applicationService.downloadResumeForPrincipal("company-a", 34L))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class);
+    }
+
 }
