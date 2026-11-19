@@ -9,6 +9,8 @@ import com.library.smart_internship.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -96,6 +98,44 @@ class HomeControllerTest {
         verify(studentService).createStudent(captor.capture());
 
         assertThat(captor.getValue().getSkills()).isNull();
+        assertThat(captor.getValue().getRole()).isEqualTo("RECRUITER");
+    }
+
+    @Test
+    void registerNormalizesAcceptedRoleBeforeSaving() {
+        when(studentRepository.findAll()).thenReturn(List.of());
+        when(passwordEncoder.encode(anyString())).thenReturn("hashed");
+
+        String result = controller.registerSubmit("Jane Doe", "jane@example.com",
+                "secret123", " student ", null);
+
+        assertThat(result).isEqualTo("redirect:/login?registered");
+
+        ArgumentCaptor<Student> captor = ArgumentCaptor.forClass(Student.class);
+        verify(studentService).createStudent(captor.capture());
+        assertThat(captor.getValue().getRole()).isEqualTo("STUDENT");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"ADMIN", "SUPERVISOR", "COMPANY", "OWNER", "admin", "UNKNOWN"})
+    void registerRejectsRolesThatAreNotPublic(String forgedRole) {
+        String result = controller.registerSubmit("Attacker", "attacker@example.com",
+                "secret123", forgedRole, null);
+
+        assertThat(result).isEqualTo("redirect:/register?error");
+        verify(studentRepository, never()).findAll();
+        verify(passwordEncoder, never()).encode(anyString());
+        verify(studentService, never()).createStudent(any());
+    }
+
+    @Test
+    void registerRejectsMissingRole() {
+        String result = controller.registerSubmit("Attacker", "attacker@example.com",
+                "secret123", null, null);
+
+        assertThat(result).isEqualTo("redirect:/register?error");
+        verify(studentRepository, never()).findAll();
+        verify(studentService, never()).createStudent(any());
     }
 
     @Test
