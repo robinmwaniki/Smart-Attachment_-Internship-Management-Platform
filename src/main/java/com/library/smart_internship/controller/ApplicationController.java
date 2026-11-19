@@ -31,6 +31,12 @@ public class ApplicationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping("/mine")
+    public ResponseEntity<List<ApplicationResponse>> getMyApplications(
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(applicationService.getApplicationsForStudent(jwt.getSubject()));
+    }
+
     @GetMapping("/internship/{internshipId}")
     public ResponseEntity<List<ApplicationResponse>> getApplicationsByInternship(
             @AuthenticationPrincipal Jwt jwt,
