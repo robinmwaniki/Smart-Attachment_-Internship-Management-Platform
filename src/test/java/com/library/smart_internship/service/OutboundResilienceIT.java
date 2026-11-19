@@ -47,7 +47,11 @@ import static org.mockito.Mockito.verify;
         "resilience4j.circuitbreaker.instances.smsGateway.slidingWindowSize=3",
         "resilience4j.circuitbreaker.instances.smsGateway.minimumNumberOfCalls=3",
         "resilience4j.circuitbreaker.instances.smsGateway.failureRateThreshold=50",
-        "resilience4j.circuitbreaker.instances.smsGateway.waitDurationInOpenState=30s"
+        "resilience4j.circuitbreaker.instances.smsGateway.waitDurationInOpenState=30s",
+        "resilience4j.circuitbreaker.instances.emailGateway.slidingWindowSize=3",
+        "resilience4j.circuitbreaker.instances.emailGateway.minimumNumberOfCalls=3",
+        "resilience4j.circuitbreaker.instances.emailGateway.failureRateThreshold=50",
+        "resilience4j.circuitbreaker.instances.emailGateway.waitDurationInOpenState=30s"
 })
 class OutboundResilienceIT {
 
