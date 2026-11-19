@@ -89,4 +89,32 @@ class ApiSecurityIntegrationTest {
                                 .authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
                 .andExpect(status().isForbidden());
     }
+
+
+    @Test
+    void rejectsStudentApplicationListingWithoutBearerAuthentication() throws Exception {
+        mockMvc.perform(get("/api/applications/mine"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void rejectsCompanyRoleFromStudentApplicationListing() throws Exception {
+        mockMvc.perform(get("/api/applications/mine")
+                        .with(jwt().jwt(token -> token.subject("company-sub"))
+                                .authorities(new SimpleGrantedAuthority("ROLE_COMPANY"))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void allowsStudentRoleToListItsOwnApplications() throws Exception {
+        when(applicationService.getApplicationsForStudent("student-sub")).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/applications/mine")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(jwt().jwt(token -> token.subject("student-sub"))
+                                .authorities(new SimpleGrantedAuthority("ROLE_STUDENT"))))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+    }
+
 }
