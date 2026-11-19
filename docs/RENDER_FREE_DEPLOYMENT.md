@@ -8,6 +8,7 @@ Render Free is suitable for a demonstration, with limitations:
 
 - Free web services spin down after 15 minutes without inbound traffic and can take about a minute to wake.
 - Free web services have 512 MB RAM and may restart or run out of memory. Keycloak and Spring Boot are both relatively memory-intensive; monitor their deploy/runtime logs.
+- A workspace receives 750 Free instance-hours per calendar month. Every running Free web service consumes this shared allowance; two services running continuously would require about 1,440 hours per 30-day month, so the API and Keycloak cannot both remain continuously available on Free. Free services spin down after 15 minutes idle, but real usage can still exhaust the shared allowance.
 - A workspace can have only one active Free Render Postgres database. It has 1 GB storage and expires 30 days after creation (with a 14-day upgrade grace period).
 - Free web services have ephemeral filesystems, no persistent disks, no shell/SSH access and no horizontal scaling.
 - Free web services cannot send outbound SMTP on ports 25, 465 or 587.
@@ -17,7 +18,7 @@ Do not use this environment for real student records or production credentials. 
 
 ## 2. Services to create
 
-Use the same Render region for the database, Keycloak and backend.
+Use the same Render region for the database, Keycloak and backend. The Free instance-hour allowance is shared across the workspace, not reserved independently for each service. Running both the API and Keycloak as continuously available Free services is therefore not a viable always-on topology; plan for idle spin-down and limited monthly active time, or use paid compute for one or both services.
 
 | Render resource | Type | Branch / image | Purpose |
 | --- | --- | --- | --- |
@@ -26,11 +27,11 @@ Use the same Render region for the database, Keycloak and backend.
 | `smart-attachment-api` | Web Service (Docker, Free) | Backend repo, `develop`, Dockerfile `Dockerfile` | Spring Boot API and existing Thymeleaf pages |
 | `smart-attachment-frontend` | Static Site (Free) | Frontend repo, `develop` | React/Vite SPA |
 
-### Important: check the Free Postgres quota first
+### Important: database isolation and the Free Postgres quota
 
-If the workspace already has a Free Postgres database (for example, the Library Management System database), do not try to create a second Free database. Reuse the existing Postgres *instance* but isolate this project using its own schemas. The application and Keycloak must not use the Library Management System's tables or schema.
+Use one PostgreSQL instance for **this Smart Attachment environment only**, with separate `smart_attachment` and `keycloak` schemas. Do not reuse a database instance that belongs to an unrelated project (including the Library Management System), even if separate schemas appear technically possible. Shared capacity, credentials, lifecycle, backups and accidental SQL mistakes would couple otherwise independent projects.
 
-If there is no active Free Postgres database, create one and record its internal hostname, database name, username and password securely. Keep it in the same region as the two web services.
+The Free plan permits only one active Free Render Postgres instance per workspace. If that quota is already used, do not point this project at another project's database to work around the limit. Use the dedicated PostgreSQL instance already backing this Smart Attachment deployment (if it meets the requirements), choose a separately managed PostgreSQL provider, or upgrade/create an appropriate dedicated database. Record its connection details securely and keep the database and services in the same region when using Render's private network.
 
 ## 3. Create isolated PostgreSQL schemas
 
@@ -163,7 +164,7 @@ The frontend API client currently defaults to `/api/v1`, while the backend contr
 
 - [ ] Keycloak root URL responds over HTTPS and the realm discovery document loads at `/realms/smart-attachment/.well-known/openid-configuration`.
 - [ ] The discovery document's `issuer` exactly matches `KEYCLOAK_ISSUER_URI`.
-- [ ] The API health endpoint responds after the service wakes.
+- [ ] Configure the Spring Boot Render service health-check path as `/actuator/health`; confirm it responds after the service wakes.
 - [ ] API logs show a successful PostgreSQL connection and Hibernate schema initialization under `smart_attachment`.
 - [ ] Keycloak starts against the `keycloak` schema and imports the `smart-attachment` realm.
 - [ ] The React app loads and redirects to the deployed Keycloak login page.
@@ -196,3 +197,11 @@ Some legacy Thymeleaf routes and un-migrated API routes are intentionally not av
 - Keep credentials in Render environment variables, never in Git.
 - Do not expose the Keycloak admin console credentials to the frontend.
 - Do not use the Free environment as a production system or as the only copy of any data.
+
+
+## 11. Official Render references
+
+Check the current plan limits before deployment because Render can change its Free-plan allowances:
+
+- [Render Free instance and Postgres limitations](https://render.com/docs/free)
+- [Render web-service health checks and port configuration](https://render.com/docs/web-services)
