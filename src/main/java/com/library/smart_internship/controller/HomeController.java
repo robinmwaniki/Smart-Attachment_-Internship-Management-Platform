@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Controller
@@ -24,6 +26,7 @@ import java.util.UUID;
 public class HomeController {
 
     private static final int RESET_TOKEN_VALIDITY_MINUTES = 30;
+    private static final Set<String> PUBLIC_REGISTRATION_ROLES = Set.of("STUDENT", "RECRUITER");
 
     private final StudentRepository studentRepository;
     private final StudentService studentService;
@@ -50,8 +53,19 @@ public class HomeController {
     public String registerSubmit(@RequestParam String name,
                                  @RequestParam String email,
                                  @RequestParam String password,
-                                 @RequestParam String role,
+                                 @RequestParam(required = false) String role,
                                  @RequestParam(value = "skills", required = false) String skills) {
+        // The public form is not an authorization boundary: callers can forge
+        // arbitrary role values, so only explicitly public roles are accepted.
+        if (role == null || role.isBlank()) {
+            return "redirect:/register?error";
+        }
+
+        String normalizedRole = role.trim().toUpperCase(Locale.ROOT);
+        if (!PUBLIC_REGISTRATION_ROLES.contains(normalizedRole)) {
+            return "redirect:/register?error";
+        }
+
         boolean emailTaken = studentRepository.findAll().stream()
                 .anyMatch(s -> s.getEmail().equalsIgnoreCase(email));
 
@@ -63,9 +77,9 @@ public class HomeController {
         student.setName(name);
         student.setEmail(email);
         student.setPassword(passwordEncoder.encode(password));
-        student.setRole(role);
+        student.setRole(normalizedRole);
 
-        if ("STUDENT".equalsIgnoreCase(role) && skills != null && !skills.isBlank()) {
+        if ("STUDENT".equals(normalizedRole) && skills != null && !skills.isBlank()) {
             student.setSkills(skills);
         }
 
