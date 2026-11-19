@@ -14,6 +14,10 @@ public class Internship {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Detects conflicting concurrent edits to an internship record. */
+    @Version
+    private Long version;
+
     private String title;
     private String company;
     private String companyWebsite;
