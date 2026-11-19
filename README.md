@@ -104,6 +104,10 @@ Springdoc OpenAPI is included for API documentation. Spring Boot Actuator is inc
 - Do not commit `.env`, database passwords, mail credentials, access tokens, or messaging-provider API keys.
 - Resume bytes are stored in PostgreSQL; database capacity and backups therefore include uploaded CV data.
 
+## Keycloak local runtime verification
+
+The real Keycloak-backed runtime checks are still outstanding; mocked JWT tests do not prove JWKS retrieval or real token validation. Follow [docs/KEYCLOAK_LOCAL_VERIFICATION.md](docs/KEYCLOAK_LOCAL_VERIFICATION.md) before marking issue #20 complete.
+
 ## Current delivery status
 
 | Area | Status | Notes |
