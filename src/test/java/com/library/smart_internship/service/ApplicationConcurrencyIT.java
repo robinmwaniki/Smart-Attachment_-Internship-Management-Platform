@@ -9,7 +9,7 @@ import com.library.smart_internship.repository.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -18,13 +18,22 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DataJpaTest(properties = {
+@SpringBootTest(properties = {
         "spring.datasource.url=jdbc:h2:mem:application-concurrency;DB_CLOSE_DELAY=-1;MODE=PostgreSQL",
         "spring.datasource.driver-class-name=org.h2.Driver",
         "spring.datasource.username=sa",
         "spring.datasource.password=",
         "spring.jpa.hibernate.ddl-auto=create-drop",
-        "spring.jpa.open-in-view=false"
+        "spring.jpa.open-in-view=false",
+        "spring.mail.host=localhost",
+        "spring.mail.port=3025",
+        "spring.mail.username=test",
+        "spring.mail.password=test",
+        "spring.mail.properties.mail.smtp.auth=false",
+        "spring.mail.properties.mail.smtp.starttls.enable=false",
+        "management.tracing.sampling.probability=0.0",
+        "spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8180/realms/smart-attachment",
+        "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost:8180/realms/smart-attachment/protocol/openid-connect/certs"
 })
 @org.springframework.transaction.annotation.Transactional(
         propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
