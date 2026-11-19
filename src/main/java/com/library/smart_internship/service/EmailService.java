@@ -7,13 +7,13 @@ import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.stereotype.Service;
 
-@Service
-@RequiredArgsConstructor
 /**
  * SMTP calls are guarded by a circuit breaker and bounded semaphore. Sending an
  * email is not idempotent, so an ambiguous timeout must not trigger an automatic
  * retry that could deliver the same notification more than once.
  */
+@Service
+@RequiredArgsConstructor
 public class EmailService {
 
     private final JavaMailSender mailSender;
