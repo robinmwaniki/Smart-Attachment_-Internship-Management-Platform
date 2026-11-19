@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -152,11 +153,11 @@ public class ApplicationService {
         Application application = applicationRepository.findById(applicationId).orElseThrow(this::notFound);
 
         boolean isOwner = application.getStudent() != null
-                && application.getStudent().getId().equals(principal.getId());
+                && Objects.equals(application.getStudent().getId(), principal.getId());
         boolean isRecruiter = isCompanyRole(principal.getRole())
                 && application.getInternship() != null
                 && application.getInternship().getRecruiter() != null
-                && application.getInternship().getRecruiter().getId().equals(principal.getId());
+                && Objects.equals(application.getInternship().getRecruiter().getId(), principal.getId());
 
         if (!isOwner && !isRecruiter) {
             throw notFound();
