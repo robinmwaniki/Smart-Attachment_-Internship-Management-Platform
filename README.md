@@ -2,7 +2,9 @@
 
 A Spring Boot web application designed to digitize student attachment and internship administration. It provides a central workflow for managing student profiles, placement opportunities, applications, supervision, and progress records.
 
-> **Project status:** Academic and portfolio project intended for local development and demonstration. Review configuration and security before any real-world deployment or use of personal data.
+> **Project status: IN PROGRESS.** This is an academic and portfolio project being developed toward a university, student and employer-facing attachment-management platform. Feature integration is active on `develop`; Render deployment is intentionally paused. It is not production-ready and must not be used with real student records until the remaining authentication, privacy, operational and end-to-end checks are completed.
+>
+> **Latest update — 19 November 2026:** application ownership/IDOR protections, database concurrency safeguards and outbound notification resilience have been merged into `develop`. Keycloak runtime verification and remaining observability work are still in progress or deferred.
 
 ## Core workflows
 
@@ -23,10 +25,10 @@ A Spring Boot web application designed to digitize student attachment and intern
 - Spring Security
 - Spring Data JPA / Hibernate
 - PostgreSQL 17
-- Keycloak OIDC identity provider (migration in progress)
+- Keycloak OIDC identity provider (integration in progress)
+- Resilience4j circuit breakers and bulkheads for outbound email/SMS
 - Spring Security OAuth2 Resource Server
 - Spring Mail
-- Spring Retry
 - Springdoc OpenAPI
 - Micrometer tracing and Zipkin
 - Docker and Docker Compose
@@ -34,7 +36,7 @@ A Spring Boot web application designed to digitize student attachment and intern
 
 ## Architecture overview
 
-The application uses a layered Spring Boot structure. Controllers handle web requests, services implement application workflows, repositories access persisted data, and PostgreSQL stores application records. Thymeleaf provides the server-rendered user interface.
+The backend uses a layered Spring Boot architecture: controllers expose web/API routes, services enforce application workflows and ownership rules, repositories persist domain data, and PostgreSQL stores application records. The separate React application is the customer-facing SPA; legacy Thymeleaf/session functionality remains during the staged authentication and UI migration.
 
 Docker Compose defines the Spring Boot application, its PostgreSQL database, a separate PostgreSQL database for Keycloak, Keycloak, and Zipkin. Uploaded documents and Keycloak database data are stored in named Docker volumes. Thymeleaf/session authentication remains during this staged migration.
 
@@ -98,9 +100,27 @@ Springdoc OpenAPI is included for API documentation. Spring Boot Actuator is inc
 - Access tokens must include the `smart-attachment-api` audience. Spring validates the token signature, issuer, expiry, and audience, then maps only the supported realm roles to Spring authorities.
 - Existing Thymeleaf pages continue to use the legacy session login during migration. The custom application-issued JWT endpoint and filter have been removed.
 - Existing student/recruiter profiles are not rewritten. Their nullable, unique `keycloak_subject` column is populated only through `POST /api/account/link`, using a Keycloak access token with a verified email, the matching existing account password, and a matching realm role. Legacy `RECRUITER` profiles map to Keycloak `COMPANY` without changing the stored role.
-- Other `/api/**` routes are temporarily denied until their ownership checks use the authenticated Keycloak subject. This is intentional: the previous application endpoints trusted caller-supplied profile IDs and must not be exposed during the frontend migration.
+- Migrated application routes use the authenticated Keycloak subject for ownership decisions. Other API routes remain restricted until their authorization rules are migrated and verified; frontend route guards are not a security boundary.
 - Do not commit `.env`, database passwords, mail credentials, access tokens, or messaging-provider API keys.
 - Resume bytes are stored in PostgreSQL; database capacity and backups therefore include uploaded CV data.
+
+## Keycloak local runtime verification
+
+The real Keycloak-backed runtime checks are still outstanding; mocked JWT tests do not prove JWKS retrieval or real token validation. Follow [docs/KEYCLOAK_LOCAL_VERIFICATION.md](docs/KEYCLOAK_LOCAL_VERIFICATION.md) before marking issue #20 complete.
+
+## Current delivery status
+
+| Area | Status | Notes |
+| --- | --- | --- |
+| Application ownership and IDOR protection | Completed | Subject-scoped application access and protected resume/status operations merged into `develop` |
+| Database integrity and concurrency | Completed | Unique student/internship application constraint and optimistic locking with integration tests |
+| Outbound notification resilience | Completed | SMTP/SMS circuit breakers, bulkheads, timeouts and controlled failure responses |
+| Keycloak OIDC | In progress | Runtime verification against the imported realm and full route authorization checks remain |
+| Sentry / observability hardening | Deferred | Requires a test-project DSN and end-to-end privacy validation |
+| Read caching | Deferred | Awaiting measured evidence of a safe read-heavy candidate |
+| Render deployment | Paused | Deployment is intentionally not part of the current workstream |
+
+See [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for the detailed progress log and next steps.
 
 ## Render Free deployment
 
